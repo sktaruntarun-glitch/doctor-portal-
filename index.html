@@ -221,7 +221,6 @@
           document.getElementById('welcomeName').innerText = data.name;
           document.getElementById('welcomeRole').innerText = data.role.toUpperCase();
           loadDashboard(user.uid, data);
-        }
       } else {
         document.getElementById('authSection').classList.remove('hidden');
         document.getElementById('dashboardSection').classList.add('hidden');
