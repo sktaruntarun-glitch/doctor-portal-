@@ -16,8 +16,10 @@
     select, input { width: 100%; padding: 12px 14px; margin-bottom: 14px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 15px; background: #f8fafc; outline: none; }
     select:focus, input:focus { border-color: #1d63dc; background: #fff; }
     .btn-primary { width: 100%; padding: 14px; border: none; border-radius: 10px; background: #1d63dc; color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 4px; }
-    .btn-danger { background: #dc2626; color: #fff; border: none; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; }
-    .btn-success { background: #16a34a; color: #fff; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+    .btn-danger { background: #dc2626; color: #fff; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; }
+    .btn-success { background: #16a34a; color: #fff; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; }
+    .btn-warning { background: #d97706; color: #fff; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; }
+    .btn-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
     .error-msg { color: #dc2626; text-align: center; font-size: 14px; margin-top: 12px; font-weight: 500; }
     .success-msg { color: #16a34a; text-align: center; font-size: 14px; margin-top: 12px; font-weight: 500; }
     .hidden { display: none; }
@@ -26,6 +28,9 @@
     .card h3 { margin: 0 0 6px 0; color: #0f294a; font-size: 17px; }
     .card p { margin: 4px 0; font-size: 14px; color: #475569; }
     .badge { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; background: #dbeafe; color: #1d4ed8; }
+    .badge-pending { background: #fef3c7; color: #b45309; }
+    .badge-approved { background: #dcfce7; color: #15803d; }
+    .alert-box { background: #fef3c7; border: 1px solid #f59e0b; color: #92400e; padding: 12px; border-radius: 10px; font-size: 14px; margin-bottom: 14px; font-weight: 500; }
   </style>
 </head>
 <body>
@@ -78,7 +83,7 @@
 
       <!-- PATIENT VIEW -->
       <div id="patientDashboard" class="hidden">
-        <h3>Available Doctors</h3>
+        <h3>Available Verified Doctors</h3>
         <div id="doctorsList">Loading doctors...</div>
         <h3 style="margin-top:20px;">Meri Appointments</h3>
         <div id="patientBookings">Loading bookings...</div>
@@ -86,6 +91,9 @@
 
       <!-- DOCTOR VIEW -->
       <div id="doctorDashboard" class="hidden">
+        <div id="doctorPendingAlert" class="alert-box hidden">
+          Aapka Doctor profile abhi <strong>Admin Verification ke liye Pending</strong> hai. Approve hone ke baad patients aapka profile dekh kar appointment book kar payenge.
+        </div>
         <div id="doctorProfileCard" class="card"></div>
         <h3>Patient Appointments</h3>
         <div id="doctorBookings">Loading appointments...</div>
@@ -93,7 +101,7 @@
 
       <!-- ADMIN VIEW -->
       <div id="adminDashboard" class="hidden">
-        <h3>Registered Doctors (Approval)</h3>
+        <h3>Registered Doctors (Approval & Management)</h3>
         <div id="adminDoctorsList">Loading...</div>
         <h3 style="margin-top:20px;">All Appointments</h3>
         <div id="adminBookingsList">Loading...</div>
@@ -104,10 +112,10 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, updateDoc, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, updateDoc, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
-      apiKey:"AIzaSyB6B7mAaXwb_3Wv48OHczRHeDFjhMfbrhI",
+      apiKey: "AIzaSyB6B7mAaXwb_3Wv48OHczRHeDFjhMfbrhI",
       authDomain: "doctor-portal-6e8d8.firebaseapp.com",
       projectId: "doctor-portal-6e8d8",
       storageBucket: "doctor-portal-6e8d8.firebasestorage.app",
@@ -186,7 +194,8 @@
               msg.innerText = 'Doctor ki saari jaankari (Degree, Clinic, Reg No, Fee) bharein.';
               return;
             }
-            userData = { ...userData, specialization, clinicName, regNumber, fee, approved: true };
+            // Naye doctor default pending rahenge jab tak Admin approve na kare
+            userData = { ...userData, specialization, clinicName, regNumber, fee, approved: false };
           }
 
           const cred = await createUserWithEmailAndPassword(auth, email, password);
@@ -230,8 +239,21 @@
         loadPatientBookings(uid);
       } else if (data.role === 'doctor') {
         document.getElementById('doctorDashboard').classList.remove('hidden');
+        const pendingAlert = document.getElementById('doctorPendingAlert');
+        if (!data.approved) {
+          pendingAlert.classList.remove('hidden');
+        } else {
+          pendingAlert.classList.add('hidden');
+        }
+        const statusBadge = data.approved
+          ? '<span class="badge badge-approved">Verified & Active</span>'
+          : '<span class="badge badge-pending">Pending Admin Approval</span>';
+
         document.getElementById('doctorProfileCard').innerHTML = `
-          <h3>${data.name}</h3>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3>${data.name}</h3>
+            ${statusBadge}
+          </div>
           <p><strong>Degree:</strong> ${data.specialization}</p>
           <p><strong>Clinic:</strong> ${data.clinicName}</p>
           <p><strong>Reg No:</strong> ${data.regNumber} | <strong>Fee:</strong> ₹${data.fee}</p>
@@ -245,11 +267,12 @@
 
     async function loadDoctorsForPatient(patientId, patientName) {
       const container = document.getElementById('doctorsList');
-      const q = query(collection(db, 'users'), where('role', '==', 'doctor'));
+      // Sirf Admin dwara approved doctors hi patient ko dikhenge
+      const q = query(collection(db, 'users'), where('role', '==', 'doctor'), where('approved', '==', true));
       const snap = await getDocs(q);
       container.innerHTML = '';
       if (snap.empty) {
-        container.innerHTML = '<p>Abhi koi doctor registered nahi hai.</p>';
+        container.innerHTML = '<p>Abhi koi verified doctor available nahi hai.</p>';
         return;
       }
       snap.forEach((docSnap) => {
@@ -257,7 +280,7 @@
         const card = document.createElement('div');
         card.className = 'card';
         card.innerHTML = `
-          <h3>${d.name}</h3>
+          <h3>${d.name} <span class="badge badge-approved">Verified</span></h3>
           <p>${d.specialization} • ${d.clinicName}</p>
           <p>Fee: <strong>₹${d.fee}</strong></p>
           <input type="date" id="date_${docSnap.id}" style="margin-top:8px;" />
@@ -302,14 +325,45 @@
       });
     }
 
+    window.toggleDoctorApproval = async function(docId, currentStatus) {
+      await updateDoc(doc(db, 'users', docId), { approved: !currentStatus });
+      loadAdminData();
+    };
+
+    window.deleteDoctorRecord = async function(docId, docName) {
+      if (confirm(`Kya aap ${docName} ko list se hatana (delete karna) chahte hain?`)) {
+        await deleteDoc(doc(db, 'users', docId));
+        loadAdminData();
+      }
+    };
+
     async function loadAdminData() {
       const docContainer = document.getElementById('adminDoctorsList');
       const qDocs = query(collection(db, 'users'), where('role', '==', 'doctor'));
       const docSnap = await getDocs(qDocs);
-      docContainer.innerHTML = '';
+      docContainer.innerHTML = docSnap.empty ? '<p>Koi doctor registered nahi hai.</p>' : '';
       docSnap.forEach((d) => {
         const info = d.data();
-        docContainer.innerHTML += `<div class="card"><strong>${info.name}</strong> (${info.specialization})<p>${info.clinicName} • Fee: ₹${info.fee}</p></div>`;
+        const isApproved = info.approved === true;
+        const statusBadge = isApproved
+          ? '<span class="badge badge-approved">Approved</span>'
+          : '<span class="badge badge-pending">Pending</span>';
+        const toggleBtn = isApproved
+          ? `<button class="btn-warning" onclick="toggleDoctorApproval('${d.id}', true)">Unapprove (Hide)</button>`
+          : `<button class="btn-success" onclick="toggleDoctorApproval('${d.id}', false)">Approve Doctor</button>`;
+
+        docContainer.innerHTML += `
+          <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <strong>${info.name} (${info.specialization})</strong>
+              ${statusBadge}
+            </div>
+            <p>${info.clinicName} • Reg: ${info.regNumber || 'N/A'} • Fee: ₹${info.fee}</p>
+            <div class="btn-row">
+              ${toggleBtn}
+              <button class="btn-danger" onclick="deleteDoctorRecord('${d.id}', '${info.name}')">Delete</button>
+            </div>
+          </div>`;
       });
 
       const bkContainer = document.getElementById('adminBookingsList');
