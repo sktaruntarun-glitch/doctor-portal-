@@ -1,305 +1,329 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MediConnect - Doctor Booking Portal</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MediConnect Portal</title>
   <style>
-    * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-    body { background: #f0f4f8; margin: 0; padding: 15px; color: #333; }
-    .container { max-width: 500px; margin: 10px auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
-    h2, h3 { text-align: center; color: #1a365d; margin-top: 0; }
-    input, select, button { width: 100%; padding: 11px; margin: 8px 0; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 15px; }
-    button { background: #2563eb; color: #fff; border: none; font-weight: 600; cursor: pointer; }
-    button:hover { background: #1d4ed8; }
-    .btn-green { background: #16a34a; }
-    .btn-red { background: #dc2626; }
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { margin: 0; background: #f0f4f8; color: #1e293b; display: flex; justify-content: center; padding: 16px; }
+    .container { width: 100%; max-width: 480px; background: #fff; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    h1 { text-align: center; color: #0f294a; font-size: 24px; margin-top: 0; margin-bottom: 20px; }
+    .tabs { display: flex; gap: 10px; margin-bottom: 18px; }
+    .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; background: #e2e8f0; color: #334155; }
+    .tab-btn.active { background: #1d63dc; color: #fff; }
+    label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; color: #1e293b; }
+    select, input { width: 100%; padding: 12px 14px; margin-bottom: 14px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 15px; background: #f8fafc; outline: none; }
+    select:focus, input:focus { border-color: #1d63dc; background: #fff; }
+    .btn-primary { width: 100%; padding: 14px; border: none; border-radius: 10px; background: #1d63dc; color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 4px; }
+    .btn-danger { background: #dc2626; color: #fff; border: none; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+    .btn-success { background: #16a34a; color: #fff; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+    .error-msg { color: #dc2626; text-align: center; font-size: 14px; margin-top: 12px; font-weight: 500; }
+    .success-msg { color: #16a34a; text-align: center; font-size: 14px; margin-top: 12px; font-weight: 500; }
     .hidden { display: none; }
-    .tabs { display: flex; gap: 8px; margin-bottom: 15px; }
-    .tabs button { background: #e2e8f0; color: #334155; }
-    .tabs button.active { background: #2563eb; color: #fff; }
-    .card { border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; margin-bottom: 12px; background: #f8fafc; }
-    .badge { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; }
-    .pending { background: #fef08a; color: #854d0e; }
-    .approved { background: #dcfce7; color: #166534; }
-    .stats { display: flex; gap: 10px; margin-bottom: 15px; }
-    .stat-box { flex: 1; background: #eff6ff; padding: 12px; border-radius: 8px; text-align: center; border: 1px solid #bfdbfe; }
-    .stat-box h4 { margin: 0; font-size: 12px; color: #1e40af; }
-    .stat-box p { margin: 5px 0 0; font-size: 18px; font-weight: bold; color: #1d4ed8; }
+    .header-bar { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 16px; }
+    .card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; margin-bottom: 12px; }
+    .card h3 { margin: 0 0 6px 0; color: #0f294a; font-size: 17px; }
+    .card p { margin: 4px 0; font-size: 14px; color: #475569; }
+    .badge { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; background: #dbeafe; color: #1d4ed8; }
   </style>
 </head>
 <body>
+  <div class="container">
+    <!-- AUTH SECTION -->
+    <div id="authSection">
+      <h1>MediConnect Portal</h1>
+      <div class="tabs">
+        <button id="tabRegister" class="tab-btn active" onclick="switchMode('register')">Register</button>
+        <button id="tabLogin" class="tab-btn" onclick="switchMode('login')">Login</button>
+      </div>
 
-<!-- 1. LOGIN & REGISTER BOX -->
-<div class="container" id="authBox">
-  <h2>MediConnect Portal</h2>
-  <div class="tabs">
-    <button id="tabReg" class="active" onclick="setMode('register')">Register</button>
-    <button id="tabLog" onclick="setMode('login')">Login</button>
-  </div>
+      <div id="roleDiv">
+        <label for="roleSelect">Account Type Chunein:</label>
+        <select id="roleSelect" onchange="toggleDoctorFields()">
+          <option value="patient">Patient</option>
+          <option value="doctor" selected>Doctor</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
 
-  <div id="regFields">
-    <label style="font-size:13px; font-weight:bold;">Account Type Chunein:</label>
-    <select id="role" onchange="toggleDocInputs()">
-      <option value="patient">Patient (Mareez)</option>
-      <option value="doctor">Doctor</option>
-    </select>
-    <input type="text" id="name" placeholder="Poora Naam (e.g., Dr. N. K. Tarun)">
-  </div>
+      <div id="registerNameDiv">
+        <input type="text" id="fullName" placeholder="Poora Naam (e.g., Dr. N. K. Tarun)" />
+      </div>
 
-  <input type="email" id="email" placeholder="Email Address">
-  <input type="password" id="password" placeholder="Password (kam se kam 6 digit)">
+      <input type="email" id="email" placeholder="Email Address" />
+      <input type="password" id="password" placeholder="Password (kam se kam 6 digit)" />
 
-  <div id="docInputs" class="hidden">
-    <input type="text" id="specialty" placeholder="Specialty (e.g., Homoeopathy, Physician)">
-    <input type="text" id="clinic" placeholder="Clinic Name & Area (e.g., Patna)">
-    <input type="text" id="regNo" placeholder="Medical Registration No.">
-    <input type="number" id="fees" placeholder="Consultation Fees (₹)">
-  </div>
+      <!-- DOCTOR EXTRA FIELDS -->
+      <div id="doctorFields">
+        <input type="text" id="specialization" placeholder="Specialization / Degree (e.g., Homoeopathic Physician)" />
+        <input type="text" id="clinicName" placeholder="Clinic / Hospital ka Naam" />
+        <input type="text" id="regNumber" placeholder="Medical Registration No." />
+        <input type="number" id="fee" placeholder="Consultation Fee (₹)" />
+      </div>
 
-  <button onclick="submitAuth()" id="authBtn">Register Karein</button>
-  <p id="statusMsg" style="color:#dc2626; text-align:center; font-size:14px;"></p>
-</div>
-
-<!-- 2. DASHBOARD BOX -->
-<div class="container hidden" id="dashBox">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-    <h3 id="userGreeting" style="margin:0;">Welcome</h3>
-    <button onclick="logoutUser()" class="btn-red" style="width:auto; padding:6px 12px; margin:0;">Logout</button>
-  </div>
-
-  <!-- PATIENT VIEW -->
-  <div id="patientView" class="hidden">
-    <h4>Available Doctors</h4>
-    <div id="approvedDoctorsList">Loading doctors...</div>
-    <h4 style="margin-top:20px;">Meri Bookings</h4>
-    <div id="patientBookingsList">Koi booking nahi hai.</div>
-  </div>
-
-  <!-- DOCTOR VIEW -->
-  <div id="doctorView" class="hidden">
-    <div id="docStatusBanner" class="card"></div>
-    <div class="stats">
-      <div class="stat-box"><h4>Total Patients</h4><p id="docTotalPts">0</p></div>
-      <div class="stat-box"><h4>Aapki Net Kamai (85%)</h4><p id="docNetEarn">₹0</p></div>
+      <button id="submitBtn" class="btn-primary" onclick="handleAuth()">Register Karein</button>
+      <div id="messageBox" class="error-msg"></div>
     </div>
-    <h4>Aapke Appointments</h4>
-    <div id="doctorBookingsList">Abhi koi appointment nahi hai.</div>
-  </div>
 
-  <!-- ADMIN (OWNER) VIEW -->
-  <div id="adminView" class="hidden">
-    <div class="stats">
-      <div class="stat-box"><h4>Total Bookings</h4><p id="admTotalBk">0</p></div>
-      <div class="stat-box"><h4>Aapka Commission (15%)</h4><p id="admCommission">₹0</p></div>
+    <!-- DASHBOARD SECTION -->
+    <div id="dashboardSection" class="hidden">
+      <div class="header-bar">
+        <div>
+          <strong id="welcomeName" style="font-size:17px; color:#0f294a;">Welcome</strong><br />
+          <span id="welcomeRole" class="badge">Role</span>
+        </div>
+        <button class="btn-danger" onclick="logoutUser()">Logout</button>
+      </div>
+
+      <!-- PATIENT VIEW -->
+      <div id="patientDashboard" class="hidden">
+        <h3>Available Doctors</h3>
+        <div id="doctorsList">Loading doctors...</div>
+        <h3 style="margin-top:20px;">Meri Appointments</h3>
+        <div id="patientBookings">Loading bookings...</div>
+      </div>
+
+      <!-- DOCTOR VIEW -->
+      <div id="doctorDashboard" class="hidden">
+        <div id="doctorProfileCard" class="card"></div>
+        <h3>Patient Appointments</h3>
+        <div id="doctorBookings">Loading appointments...</div>
+      </div>
+
+      <!-- ADMIN VIEW -->
+      <div id="adminDashboard" class="hidden">
+        <h3>Registered Doctors (Approval)</h3>
+        <div id="adminDoctorsList">Loading...</div>
+        <h3 style="margin-top:20px;">All Appointments</h3>
+        <div id="adminBookingsList">Loading...</div>
+      </div>
     </div>
-    <h4>Doctors Approval List</h4>
-    <div id="adminDoctorsList">Loading...</div>
-    <h4 style="margin-top:20px;">All Transactions & Commission</h4>
-    <div id="adminBookingsList">Loading...</div>
   </div>
-</div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-  import { getFirestore, doc, setDoc, getDoc, collection, getDocs, addDoc, updateDoc, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, updateDoc, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyALATT7H1fCYEo_NhthXUbfErBFo2lP_fM",
-    authDomain: "doctor-portal-6e8d8.firebaseapp.com",
-    projectId: "doctor-portal-6e8d8",
-    storageBucket: "doctor-portal-6e8d8.firebasestorage.app",
-    messagingSenderId: "970085887259",
-    appId: "1:970085887259:web:3ce3a28b34dda68e61f7be",
-    measurementId: "G-0LTM7N7BSB"
-  };
+    const firebaseConfig = {
+      apiKey: "AIzaSyALATT7H1fCYEo_NhthXUbfErBFo2lP_fM",
+      authDomain: "doctor-portal-6e8d8.firebaseapp.com",
+      projectId: "doctor-portal-6e8d8",
+      storageBucket: "doctor-portal-6e8d8.firebasestorage.app",
+      messagingSenderId: "970085887259",
+      appId: "1:970085887259:web:3ce3a28b34dda68e61f7be",
+      measurementId: "G-0LTM7N7BSB"
+    };
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-  let mode = 'register';
-  let currentUser = null;
-  const COMMISSION_RATE = 0.15; // 15% Owner Commission
+    let mode = 'register';
 
-  window.setMode = (m) => {
-    mode = m;
-    document.getElementById('tabReg').classList.toggle('active', m === 'register');
-    document.getElementById('tabLog').classList.toggle('active', m === 'login');
-    document.getElementById('regFields').classList.toggle('hidden', m === 'login');
-    document.getElementById('authBtn').innerText = m === 'register' ? 'Register Karein' : 'Login Karein';
-    toggleDocInputs();
-  };
-
-  window.toggleDocInputs = () => {
-    const r = document.getElementById('role').value;
-    document.getElementById('docInputs').classList.toggle('hidden', !(mode === 'register' && r === 'doctor'));
-  };
-
-  window.submitAuth = async () => {
-    const email = document.getElementById('email').value.trim();
-    const pass = document.getElementById('password').value;
-    const msg = document.getElementById('statusMsg');
-    msg.innerText = "Please wait...";
-
-    try {
+    window.switchMode = function(newMode) {
+      mode = newMode;
+      document.getElementById('messageBox').innerText = '';
       if (mode === 'register') {
-        const role = document.getElementById('role').value;
-        const name = document.getElementById('name').value.trim();
-        if (!name) { msg.innerText = "Naam likhna zaroori hai."; return; }
-
-        const cred = await createUserWithEmailAndPassword(auth, email, pass);
-        let userData = { uid: cred.user.uid, name, email, role };
-
-        if (role === 'doctor') {
-          userData.specialty = document.getElementById('specialty').value;
-          userData.clinic = document.getElementById('clinic').value;
-          userData.regNo = document.getElementById('regNo').value;
-          userData.fees = Number(document.getElementById('fees').value) || 300;
-          userData.status = "pending";
-        }
-        await setDoc(doc(db, "users", cred.user.uid), userData);
-        initDashboard(cred.user.uid);
+        document.getElementById('tabRegister').classList.add('active');
+        document.getElementById('tabLogin').classList.remove('active');
+        document.getElementById('roleDiv').classList.remove('hidden');
+        document.getElementById('registerNameDiv').classList.remove('hidden');
+        document.getElementById('submitBtn').innerText = 'Register Karein';
+        toggleDoctorFields();
       } else {
-        const cred = await signInWithEmailAndPassword(auth, email, pass);
-        initDashboard(cred.user.uid);
+        document.getElementById('tabLogin').classList.add('active');
+        document.getElementById('tabRegister').classList.remove('active');
+        document.getElementById('roleDiv').classList.add('hidden');
+        document.getElementById('registerNameDiv').classList.add('hidden');
+        document.getElementById('doctorFields').classList.add('hidden');
+        document.getElementById('submitBtn').innerText = 'Login Karein';
       }
-    } catch (e) {
-      msg.innerText = e.message;
+    };
+
+    window.toggleDoctorFields = function() {
+      const role = document.getElementById('roleSelect').value;
+      const docFields = document.getElementById('doctorFields');
+      if (mode === 'register' && role === 'doctor') {
+        docFields.classList.remove('hidden');
+      } else {
+        docFields.classList.add('hidden');
+      }
+    };
+
+    window.handleAuth = async function() {
+      const msg = document.getElementById('messageBox');
+      msg.className = 'error-msg';
+      msg.innerText = 'Please wait...';
+
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+
+      if (!email || !password) {
+        msg.innerText = 'Email aur Password zaroori hai.';
+        return;
+      }
+
+      try {
+        if (mode === 'register') {
+          const name = document.getElementById('fullName').value.trim();
+          const role = document.getElementById('roleSelect').value;
+          if (!name) {
+            msg.innerText = 'Kripya apna poora naam likhein.';
+            return;
+          }
+
+          let userData = { name, email, role, createdAt: new Date().toISOString() };
+
+          if (role === 'doctor') {
+            const specialization = document.getElementById('specialization').value.trim();
+            const clinicName = document.getElementById('clinicName').value.trim();
+            const regNumber = document.getElementById('regNumber').value.trim();
+            const fee = document.getElementById('fee').value.trim();
+
+            if (!specialization || !clinicName || !regNumber || !fee) {
+              msg.innerText = 'Doctor ki saari jaankari (Degree, Clinic, Reg No, Fee) bharein.';
+              return;
+            }
+            userData = { ...userData, specialization, clinicName, regNumber, fee, approved: true };
+          }
+
+          const cred = await createUserWithEmailAndPassword(auth, email, password);
+          await setDoc(doc(db, 'users', cred.user.uid), userData);
+          msg.className = 'success-msg';
+          msg.innerText = 'Registration Successful!';
+        } else {
+          await signInWithEmailAndPassword(auth, email, password);
+          msg.innerText = '';
+        }
+      } catch (err) {
+        msg.innerText = err.message;
+      }
+    };
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        document.getElementById('authSection').classList.add('hidden');
+        document.getElementById('dashboardSection').classList.remove('hidden');
+        const snap = await getDoc(doc(db, 'users', user.uid));
+        if (snap.exists()) {
+          const data = snap.data();
+          document.getElementById('welcomeName').innerText = data.name;
+          document.getElementById('welcomeRole').innerText = data.role.toUpperCase();
+          loadDashboard(user.uid, data);
+        }
+      } else {
+        document.getElementById('authSection').classList.remove('hidden');
+        document.getElementById('dashboardSection').classList.add('hidden');
+      }
+    });
+
+    async function loadDashboard(uid, data) {
+      document.getElementById('patientDashboard').classList.add('hidden');
+      document.getElementById('doctorDashboard').classList.add('hidden');
+      document.getElementById('adminDashboard').classList.add('hidden');
+
+      if (data.role === 'patient') {
+        document.getElementById('patientDashboard').classList.remove('hidden');
+        loadDoctorsForPatient(uid, data.name);
+        loadPatientBookings(uid);
+      } else if (data.role === 'doctor') {
+        document.getElementById('doctorDashboard').classList.remove('hidden');
+        document.getElementById('doctorProfileCard').innerHTML = `
+          <h3>${data.name}</h3>
+          <p><strong>Degree:</strong> ${data.specialization}</p>
+          <p><strong>Clinic:</strong> ${data.clinicName}</p>
+          <p><strong>Reg No:</strong> ${data.regNumber} | <strong>Fee:</strong> ₹${data.fee}</p>
+        `;
+        loadDoctorBookings(uid);
+      } else if (data.role === 'admin') {
+        document.getElementById('adminDashboard').classList.remove('hidden');
+        loadAdminData();
+      }
     }
-  };
 
-  async function initDashboard(uid) {
-    const snap = await getDoc(doc(db, "users", uid));
-    if (!snap.exists()) return;
-    currentUser = snap.data();
-
-    document.getElementById('authBox').classList.add('hidden');
-    document.getElementById('dashBox').classList.remove('hidden');
-    document.getElementById('userGreeting').innerText = `Hi, ${currentUser.name}`;
-
-    if (currentUser.role === 'patient') {
-      document.getElementById('patientView').classList.remove('hidden');
-      loadPatientData();
-    } else if (currentUser.role === 'doctor') {
-      document.getElementById('doctorView').classList.remove('hidden');
-      loadDoctorData();
-    } else if (currentUser.role === 'admin') {
-      document.getElementById('adminView').classList.remove('hidden');
-      loadAdminData();
+    async function loadDoctorsForPatient(patientId, patientName) {
+      const container = document.getElementById('doctorsList');
+      const q = query(collection(db, 'users'), where('role', '==', 'doctor'));
+      const snap = await getDocs(q);
+      container.innerHTML = '';
+      if (snap.empty) {
+        container.innerHTML = '<p>Abhi koi doctor registered nahi hai.</p>';
+        return;
+      }
+      snap.forEach((docSnap) => {
+        const d = docSnap.data();
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <h3>${d.name}</h3>
+          <p>${d.specialization} • ${d.clinicName}</p>
+          <p>Fee: <strong>₹${d.fee}</strong></p>
+          <input type="date" id="date_${docSnap.id}" style="margin-top:8px;" />
+          <button class="btn-primary" onclick="bookAppointment('${docSnap.id}', '${d.name}', '${patientId}', '${patientName}')">Book Appointment</button>
+        `;
+        container.appendChild(card);
+      });
     }
-  }
 
-  // PATIENT FUNCTIONS
-  async function loadPatientData() {
-    const q = query(collection(db, "users"), where("role", "==", "doctor"), where("status", "==", "approved"));
-    const snap = await getDocs(q);
-    let html = "";
-    snap.forEach(d => {
-      const docData = d.data();
-      html += `<div class="card">
-        <strong>${docData.name}</strong> (${docData.specialty})<br>
-        <small>Clinic: ${docData.clinic} | Fees: ₹${docData.fees}</small><br>
-        <input type="date" id="date_${docData.uid}" style="margin-top:8px;">
-        <button class="btn-green" onclick="bookDoctor('${docData.uid}', '${docData.name}', ${docData.fees})">Book Appointment (₹${docData.fees})</button>
-      </div>`;
-    });
-    document.getElementById('approvedDoctorsList').innerHTML = html || "<p>Abhi koi approved doctor available nahi hai.</p>";
+    window.bookAppointment = async function(doctorId, doctorName, patientId, patientName) {
+      const dateVal = document.getElementById(`date_${doctorId}`).value;
+      if (!dateVal) {
+        alert('Kripya appointment ki date chunein.');
+        return;
+      }
+      await addDoc(collection(db, 'appointments'), {
+        doctorId, doctorName, patientId, patientName, date: dateVal, status: 'Booked'
+      });
+      alert('Appointment book ho gayi!');
+      loadPatientBookings(patientId);
+    };
 
-    // Load Patient's own bookings
-    const bq = query(collection(db, "bookings"), where("patientId", "==", currentUser.uid));
-    const bSnap = await getDocs(bq);
-    let bHtml = "";
-    bSnap.forEach(b => {
-      const bk = b.data();
-      bHtml += `<div class="card">Doctor: <b>${bk.doctorName}</b> | Date: ${bk.date} | Paid: ₹${bk.totalFee}</div>`;
-    });
-    document.getElementById('patientBookingsList').innerHTML = bHtml || "<p>Abhi tak koi booking nahi.</p>";
-  }
+    async function loadPatientBookings(patientId) {
+      const container = document.getElementById('patientBookings');
+      const q = query(collection(db, 'appointments'), where('patientId', '==', patientId));
+      const snap = await getDocs(q);
+      container.innerHTML = snap.empty ? '<p>Koi booking nahi mili.</p>' : '';
+      snap.forEach((b) => {
+        const bk = b.data();
+        container.innerHTML += `<div class="card"><strong>${bk.doctorName}</strong><p>Date: ${bk.date} • Status: ${bk.status}</p></div>`;
+      });
+    }
 
-  window.bookDoctor = async (docId, docName, fee) => {
-    const date = document.getElementById(`date_${docId}`).value;
-    if (!date) { alert("Pehle appointment ki date chunein!"); return; }
+    async function loadDoctorBookings(doctorId) {
+      const container = document.getElementById('doctorBookings');
+      const q = query(collection(db, 'appointments'), where('doctorId', '==', doctorId));
+      const snap = await getDocs(q);
+      container.innerHTML = snap.empty ? '<p>Abhi koi patient appointment nahi hai.</p>' : '';
+      snap.forEach((b) => {
+        const bk = b.data();
+        container.innerHTML += `<div class="card"><strong>Patient: ${bk.patientName}</strong><p>Date: ${bk.date} • Status: ${bk.status}</p></div>`;
+      });
+    }
 
-    const adminCut = Math.round(fee * COMMISSION_RATE);
-    const doctorCut = fee - adminCut;
+    async function loadAdminData() {
+      const docContainer = document.getElementById('adminDoctorsList');
+      const qDocs = query(collection(db, 'users'), where('role', '==', 'doctor'));
+      const docSnap = await getDocs(qDocs);
+      docContainer.innerHTML = '';
+      docSnap.forEach((d) => {
+        const info = d.data();
+        docContainer.innerHTML += `<div class="card"><strong>${info.name}</strong> (${info.specialization})<p>${info.clinicName} • Fee: ₹${info.fee}</p></div>`;
+      });
 
-    await addDoc(collection(db, "bookings"), {
-      patientId: currentUser.uid,
-      patientName: currentUser.name,
-      doctorId: docId,
-      doctorName: docName,
-      date: date,
-      totalFee: fee,
-      adminCommission: adminCut,
-      doctorPayout: doctorCut,
-      createdAt: new Date().toISOString()
-    });
-    alert(`Booking Confirmed! ₹${fee} paid.`);
-    loadPatientData();
-  };
+      const bkContainer = document.getElementById('adminBookingsList');
+      const bkSnap = await getDocs(collection(db, 'appointments'));
+      bkContainer.innerHTML = bkSnap.empty ? '<p>Koi appointment nahi hai.</p>' : '';
+      bkSnap.forEach((b) => {
+        const bk = b.data();
+        bkContainer.innerHTML += `<div class="card"><strong>${bk.patientName}</strong> → ${bk.doctorName}<p>Date: ${bk.date} (${bk.status})</p></div>`;
+      });
+    }
 
-  // DOCTOR FUNCTIONS
-  async function loadDoctorData() {
-    const banner = document.getElementById('docStatusBanner');
-    banner.innerHTML = `Status: <span class="badge ${currentUser.status}">${currentUser.status.toUpperCase()}</span><br>
-      <small>${currentUser.status === 'pending' ? 'Admin approval ke baad aap patients ko dikhenge.' : 'Aapki profile live hai.'}</small>`;
-
-    const q = query(collection(db, "bookings"), where("doctorId", "==", currentUser.uid));
-    const snap = await getDocs(q);
-    let count = 0, net = 0, html = "";
-    snap.forEach(b => {
-      const bk = b.data();
-      count++;
-      net += bk.doctorPayout;
-      html += `<div class="card">Patient: <b>${bk.patientName}</b><br>Date: ${bk.date} | Aapka Hisab: ₹${bk.doctorPayout} (Fee: ₹${bk.totalFee})</div>`;
-    });
-    document.getElementById('docTotalPts').innerText = count;
-    document.getElementById('docNetEarn').innerText = `₹${net}`;
-    document.getElementById('doctorBookingsList').innerHTML = html || "<p>Abhi koi patient booking nahi hai.</p>";
-  }
-
-  // ADMIN FUNCTIONS
-  async function loadAdminData() {
-    const uSnap = await getDocs(query(collection(db, "users"), where("role", "==", "doctor")));
-    let dHtml = "";
-    uSnap.forEach(d => {
-      const docData = d.data();
-      dHtml += `<div class="card">
-        <b>${docData.name}</b> (${docData.specialty}) - Reg: ${docData.regNo}<br>
-        Fees: ₹${docData.fees} | Status: <span class="badge ${docData.status}">${docData.status}</span>
-        ${docData.status === 'pending' ? `<button class="btn-green" onclick="approveDoc('${docData.uid}')">Approve Doctor</button>` : ''}
-      </div>`;
-    });
-    document.getElementById('adminDoctorsList').innerHTML = dHtml || "<p>Koi doctor registered nahi hai.</p>";
-
-    const bSnap = await getDocs(collection(db, "bookings"));
-    let totalBk = 0, totalComm = 0, bHtml = "";
-    bSnap.forEach(b => {
-      const bk = b.data();
-      totalBk++;
-      totalComm += bk.adminCommission;
-      bHtml += `<div class="card">
-        ${bk.patientName} ➔ <b>${bk.doctorName}</b> (${bk.date})<br>
-        Total: ₹${bk.totalFee} | <b style="color:#16a34a;">Aapka Commission: ₹${bk.adminCommission}</b> | Doctor: ₹${bk.doctorPayout}
-      </div>`;
-    });
-    document.getElementById('admTotalBk').innerText = totalBk;
-    document.getElementById('admCommission').innerText = `₹${totalComm}`;
-    document.getElementById('adminBookingsList').innerHTML = bHtml || "<p>Abhi koi booking nahi hui hai.</p>";
-  }
-
-  window.approveDoc = async (uid) => {
-    await updateDoc(doc(db, "users", uid), { status: "approved" });
-    alert("Doctor Approved!");
-    loadAdminData();
-  };
-
-  window.logoutUser = async () => {
-    await signOut(auth);
-    location.reload();
-  };
-</script>
+    window.logoutUser = async function() {
+      await signOut(auth);
+    };
+  </script>
 </body>
 </html>
