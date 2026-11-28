@@ -15,10 +15,11 @@
     label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 13px; }
     select, input { width: 100%; padding: 10px 12px; margin-bottom: 10px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 14px; background: #f8fafc; }
     .btn-primary { width: 100%; padding: 12px; border: none; border-radius: 10px; background: #1d63dc; color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 4px; }
+    .btn-wa { display: inline-block; text-decoration: none; background: #25d366; color: #fff; padding: 7px 11px; border-radius: 8px; font-weight: 600; font-size: 12px; border: none; cursor: pointer; }
     .btn-danger { background: #dc2626; color: #fff; border: none; padding: 7px 11px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 12px; }
     .btn-success { background: #16a34a; color: #fff; border: none; padding: 7px 11px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 12px; }
     .btn-warning { background: #d97706; color: #fff; border: none; padding: 7px 11px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 12px; }
-    .btn-row { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+    .btn-row { display: flex; gap: 7px; margin-top: 8px; flex-wrap: wrap; align-items: center; }
     .error-msg { color: #dc2626; text-align: center; font-size: 13px; margin-top: 8px; font-weight: 500; }
     .hidden { display: none !important; }
     .header-bar { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 14px; }
@@ -27,12 +28,11 @@
     .card p { margin: 3px 0; font-size: 13px; color: #475569; }
     .badge { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; background: #dbeafe; color: #1d4ed8; }
     .badge-pending { background: #fef3c7; color: #b45309; }
-    .badge-approved { background: #dcfce7; color: #15803d; }
+    .badge-approved, .badge-completed { background: #dcfce7; color: #15803d; }
+    .badge-cancelled { background: #fee2e2; color: #991b1b; }
     .alert-box { background: #fef3c7; border: 1px solid #f59e0b; color: #92400e; padding: 10px; border-radius: 10px; font-size: 13px; margin-bottom: 12px; }
-    .legend { display: flex; gap: 8px; font-size: 11px; margin: 6px 0; flex-wrap: wrap; }
-    .legend span { display: flex; align-items: center; gap: 4px; font-weight: 600; }
-    .dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
-    .slot-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; max-height: 250px; overflow-y: auto; padding: 7px; background: #fff; border: 1px solid #cbd5e1; border-radius: 10px; margin-top: 6px; }
+    .wa-banner { background: #dcfce7; border: 1.5px solid #22c55e; padding: 12px; border-radius: 10px; margin-bottom: 12px; text-align: center; }
+    .slot-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; max-height: 240px; overflow-y: auto; padding: 7px; background: #fff; border: 1px solid #cbd5e1; border-radius: 10px; margin-top: 6px; }
     .slot-btn { padding: 7px 3px; font-size: 11px; font-weight: 600; border-radius: 6px; border: 1.5px solid transparent; cursor: pointer; }
     .slot-avail { background: #dcfce7; color: #166534; border-color: #86efac; }
     .slot-selected { background: #1d63dc !important; color: #fff !important; }
@@ -55,7 +55,10 @@
           <option value="doctor" selected>Doctor</option>
         </select>
       </div>
-      <div id="registerNameDiv"><input type="text" id="fullName" placeholder="Poora Naam" /></div>
+      <div id="registerNameDiv">
+        <input type="text" id="fullName" placeholder="Poora Naam" />
+        <input type="tel" id="phone" placeholder="WhatsApp Mobile No. (10 digits)" maxlength="10" />
+      </div>
       <input type="email" id="email" placeholder="Email Address" />
       <input type="password" id="password" placeholder="Password (6+ digits)" />
       <div id="doctorFields">
@@ -77,66 +80,48 @@
         <button class="btn-danger" onclick="logoutUser()">Logout</button>
       </div>
 
-      <!-- PATIENT -->
       <div id="patientDashboard" class="hidden">
+        <div id="bookingWaAlert" class="wa-banner hidden"></div>
         <h3>Verified Doctors</h3>
         <div id="doctorsList">Loading...</div>
         <h3 style="margin-top:16px;">Meri Appointments</h3>
         <div id="patientBookings">Loading...</div>
       </div>
 
-      <!-- DOCTOR -->
       <div id="doctorDashboard" class="hidden">
         <div id="doctorPendingAlert" class="alert-box hidden">Aapka profile <strong>Admin Verification ke liye Pending</strong> hai.</div>
         <div id="doctorProfileCard" class="card"></div>
         <div class="card">
           <h3>24-Hour Time Slot Control (15-Min)</h3>
-          <p>Button dabakar slot <strong>Band (Red)</strong> ya <strong>Chalu (Green)</strong> karein:</p>
           <input type="date" id="docManageDate" onchange="renderDoctorSlotGrid()" />
           <div class="btn-row">
             <button class="btn-danger" onclick="bulkToggleSlots(currentDoctorId, 'docManageDate', true)">Poora Din Band</button>
             <button class="btn-success" onclick="bulkToggleSlots(currentDoctorId, 'docManageDate', false)">Sabhi Chalu</button>
           </div>
-          <div class="legend">
-            <span><i class="dot" style="background:#dcfce7;"></i> Available</span>
-            <span><i class="dot" style="background:#fee2e2;"></i> Band</span>
-            <span><i class="dot" style="background:#e0e7ff;"></i> Booked</span>
-          </div>
           <div id="doctorSlotGrid" class="slot-grid"></div>
         </div>
-        <h3>Patient Appointments</h3>
+        <h3>Patient Appointments (Status & WhatsApp)</h3>
         <div id="doctorBookings">Loading...</div>
       </div>
 
-      <!-- ADMIN -->
       <div id="adminDashboard" class="hidden">
         <h3>Registered Doctors (Approval)</h3>
         <div id="adminDoctorsList">Loading...</div>
-
-        <!-- ADMIN LIVE SLOT MONITOR -->
         <div class="card" style="margin-top:14px;">
           <h3>Live Slot Monitor & Control (24-Hr)</h3>
-          <p>Doctor aur Date chunein—aap kisi bhi slot ko monitor ya Band/Chalu kar sakte hain:</p>
           <select id="adminDocSelect" onchange="renderAdminSlotGrid()"></select>
           <input type="date" id="adminManageDate" onchange="renderAdminSlotGrid()" />
           <div class="btn-row">
             <button class="btn-danger" onclick="bulkToggleSlots(document.getElementById('adminDocSelect').value, 'adminManageDate', true)">Poora Din Band</button>
             <button class="btn-success" onclick="bulkToggleSlots(document.getElementById('adminDocSelect').value, 'adminManageDate', false)">Sabhi Chalu</button>
           </div>
-          <div class="legend">
-            <span><i class="dot" style="background:#dcfce7;"></i> Available</span>
-            <span><i class="dot" style="background:#fee2e2;"></i> Band</span>
-            <span><i class="dot" style="background:#e0e7ff;"></i> Booked</span>
-          </div>
           <div id="adminSlotGrid" class="slot-grid"></div>
         </div>
-
         <h3 style="margin-top:16px;">All Appointments</h3>
         <div id="adminBookingsList">Loading...</div>
       </div>
     </div>
   </div>
-
   <script>
     let authMode = 'register';
     function switchMode(m) {
@@ -175,6 +160,7 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
     window.currentDoctorId = null;
+    let currentUserData = null;
     let selectedSlots = {};
 
     const ALL_SLOTS = [];
@@ -187,6 +173,12 @@
     }
     const todayStr = () => new Date().toISOString().split('T')[0];
 
+    function makeWaLink(phone, text) {
+      const clean = (phone || '').replace(/\D/g, '');
+      const num = clean.length === 10 ? '91' + clean : clean;
+      return num ? `https://wa.me/${num}?text=${encodeURIComponent(text)}` : `https://wa.me/?text=${encodeURIComponent(text)}`;
+    }
+
     window.handleAuth = async function() {
       const msg = document.getElementById('messageBox');
       msg.innerText = 'Please wait...';
@@ -196,10 +188,10 @@
       try {
         if (authMode === 'register') {
           const name = document.getElementById('fullName').value.trim();
+          const phone = document.getElementById('phone').value.trim();
           const role = document.getElementById('roleSelect').value;
-          if (role === 'admin' && email.toLowerCase() !== 'sktarun.tarun@gmail.com') return (msg.innerText = 'Admin registration band hai.');
-          if (!name) return (msg.innerText = 'Poora naam likhein.');
-          let userData = { name, email, role };
+          if (!name || phone.length < 10) return (msg.innerText = 'Naam aur 10-digit WhatsApp number bharein.');
+          let userData = { name, phone, email, role };
           if (role === 'doctor') {
             const specialization = document.getElementById('specialization').value.trim();
             const clinicName = document.getElementById('clinicName').value.trim();
@@ -226,6 +218,9 @@
       const snap = await getDoc(doc(db, 'users', user.uid));
       if (!snap.exists()) { await signOut(auth); return; }
       const d = snap.data();
+      if (user.email.toLowerCase() === 'sktarun.tarun@gmail.com') d.role = 'admin';
+      currentUserData = { uid: user.uid, ...d };
+
       document.getElementById('authSection').classList.add('hidden');
       document.getElementById('dashboardSection').classList.remove('hidden');
       document.getElementById('welcomeName').innerText = d.name;
@@ -234,8 +229,8 @@
       ['patientDashboard', 'doctorDashboard', 'adminDashboard'].forEach(id => document.getElementById(id).classList.add('hidden'));
       if (d.role === 'patient') {
         document.getElementById('patientDashboard').classList.remove('hidden');
-        loadDoctors(user.uid, d.name);
-        loadBookings('patientId', user.uid, 'patientBookings', false);
+        loadDoctors();
+        loadPatientBookings();
       } else if (d.role === 'doctor') {
         window.currentDoctorId = user.uid;
         document.getElementById('doctorDashboard').classList.remove('hidden');
@@ -244,7 +239,7 @@
         const dt = document.getElementById('docManageDate');
         if (!dt.value) dt.value = todayStr();
         renderDoctorSlotGrid();
-        loadBookings('doctorId', user.uid, 'doctorBookings', true);
+        loadDoctorBookings();
       } else if (d.role === 'admin') {
         document.getElementById('adminDashboard').classList.remove('hidden');
         const adt = document.getElementById('adminManageDate');
@@ -252,7 +247,6 @@
         loadAdminData();
       }
     });
-
     async function buildSlotControlGrid(docId, dateStr, gridElId, refreshFn) {
       const grid = document.getElementById(gridElId);
       if (!docId || !dateStr) return;
@@ -261,7 +255,7 @@
       const unavail = (uSnap.data().unavailableSlots || {})[dateStr] || [];
       const bkSnap = await getDocs(query(collection(db, 'appointments'), where('doctorId', '==', docId), where('date', '==', dateStr)));
       const booked = [];
-      bkSnap.forEach(b => { if (b.data().timeSlot) booked.push(b.data().timeSlot); });
+      bkSnap.forEach(b => { if (b.data().timeSlot && b.data().status !== 'Cancelled') booked.push(b.data().timeSlot); });
 
       grid.innerHTML = '';
       ALL_SLOTS.forEach(slot => {
@@ -294,14 +288,13 @@
       const map = snap.data().unavailableSlots || {};
       map[dateStr] = closeAll ? [...ALL_SLOTS] : [];
       await updateDoc(ref, { unavailableSlots: map });
-      if (dateInputId === 'adminManageDate') renderAdminSlotGrid();
-      else renderDoctorSlotGrid();
+      dateInputId === 'adminManageDate' ? renderAdminSlotGrid() : renderDoctorSlotGrid();
     };
 
     window.renderDoctorSlotGrid = () => buildSlotControlGrid(window.currentDoctorId, document.getElementById('docManageDate').value, 'doctorSlotGrid', renderDoctorSlotGrid);
     window.renderAdminSlotGrid = () => buildSlotControlGrid(document.getElementById('adminDocSelect').value, document.getElementById('adminManageDate').value, 'adminSlotGrid', renderAdminSlotGrid);
 
-    async function loadDoctors(pid, pname) {
+    async function loadDoctors() {
       const box = document.getElementById('doctorsList');
       const snap = await getDocs(query(collection(db, 'users'), where('role', '==', 'doctor'), where('approved', '==', true)));
       box.innerHTML = snap.empty ? '<p>Koi verified doctor available nahi hai.</p>' : '';
@@ -309,7 +302,7 @@
         const info = d.data();
         const div = document.createElement('div');
         div.className = 'card';
-        div.innerHTML = `<h3>${info.name} <span class="badge badge-approved">Verified</span></h3><p>${info.specialization} • ${info.clinicName} • Fee: ₹${info.fee}</p><input type="date" id="date_${d.id}" value="${todayStr()}" min="${todayStr()}" onchange="loadPatSlots('${d.id}')" /><div class="legend"><span><i class="dot" style="background:#dcfce7;"></i> Available</span><span><i class="dot" style="background:#1d63dc;"></i> Selected</span><span><i class="dot" style="background:#e0e7ff;"></i> Booked</span><span><i class="dot" style="background:#fee2e2;"></i> Band</span></div><div id="grid_${d.id}" class="slot-grid"></div><button class="btn-primary" onclick="bookSlot('${d.id}','${info.name}','${pid}','${pname}')">Book Selected Slot</button>`;
+        div.innerHTML = `<h3>${info.name} <span class="badge badge-approved">Verified</span></h3><p>${info.specialization} • ${info.clinicName} • Fee: ₹${info.fee}</p><input type="date" id="date_${d.id}" value="${todayStr()}" min="${todayStr()}" onchange="loadPatSlots('${d.id}')" /><div id="grid_${d.id}" class="slot-grid"></div><button class="btn-primary" onclick="bookSlot('${d.id}','${info.name}','${info.phone || ''}')">Book Selected Slot</button>`;
         box.appendChild(div);
         loadPatSlots(d.id);
       });
@@ -324,7 +317,7 @@
       const unavail = (uSnap.data().unavailableSlots || {})[dateStr] || [];
       const bkSnap = await getDocs(query(collection(db, 'appointments'), where('doctorId', '==', docId), where('date', '==', dateStr)));
       const booked = [];
-      bkSnap.forEach(b => { if (b.data().timeSlot) booked.push(b.data().timeSlot); });
+      bkSnap.forEach(b => { if (b.data().timeSlot && b.data().status !== 'Cancelled') booked.push(b.data().timeSlot); });
 
       grid.innerHTML = '';
       ALL_SLOTS.forEach(slot => {
@@ -345,25 +338,63 @@
       });
     };
 
-    window.bookSlot = async function(docId, docName, pid, pname) {
+    window.bookSlot = async function(docId, docName, docPhone) {
       const date = document.getElementById(`date_${docId}`).value;
       const timeSlot = selectedSlots[docId];
-            if (!date || !timeSlot) return alert('Date aur Green Time Slot chunein.');
+      if (!date || !timeSlot) return alert('Date aur Green Time Slot chunein.');
       const chk = await getDocs(query(collection(db, 'appointments'), where('doctorId', '==', docId), where('date', '==', date), where('timeSlot', '==', timeSlot)));
-      if (!chk.empty) { alert('Yeh slot abhi book ho chuka hai!'); return loadPatSlots(docId); }
-      await addDoc(collection(db, 'appointments'), { doctorId: docId, doctorName: docName, patientId: pid, patientName: pname, date, timeSlot, status: 'Booked' });
-      alert(`Booked: ${date} at ${timeSlot}`);
+      let already = false;
+      chk.forEach(c => { if (c.data().status !== 'Cancelled') already = true; });
+      if (already) { alert('Yeh slot abhi book ho chuka hai!'); return loadPatSlots(docId); }
+
+      const pName = currentUserData.name;
+      const pPhone = currentUserData.phone || '';
+      await addDoc(collection(db, 'appointments'), {
+        doctorId: docId, doctorName: docName, doctorPhone: docPhone,
+        patientId: currentUserData.uid, patientName: pName, patientPhone: pPhone,
+        date, timeSlot, status: 'Booked'
+      });
+
+      const docMsg = `Namaste ${docName}, naya appointment book hua hai:\nPatient: ${pName}\nMobile: ${pPhone}\nDate: ${date}\nTime: ${timeSlot}`;
+      const patMsg = `Appointment Confirmed!\nDoctor: ${docName}\nDate: ${date}\nTime: ${timeSlot}\nPatient: ${pName}`;
+      const banner = document.getElementById('bookingWaAlert');
+      banner.classList.remove('hidden');
+      banner.innerHTML = `<strong>Appointment Booked (${date} at ${timeSlot})!</strong><div class="btn-row" style="justify-content:center; margin-top:8px;"><a class="btn-wa" target="_blank" href="${makeWaLink(docPhone, docMsg)}">Doctor ko WhatsApp Bhejein</a><a class="btn-wa" target="_blank" href="${makeWaLink(pPhone, patMsg)}">Apne WhatsApp par Save Karein</a></div>`;
+
       loadPatSlots(docId);
-      loadBookings('patientId', pid, 'patientBookings', false);
+      loadPatientBookings();
     };
 
-    async function loadBookings(field, val, elId, isDoc) {
-      const box = document.getElementById(elId);
-      const snap = await getDocs(query(collection(db, 'appointments'), where(field, '==', val)));
+    window.updateBookingStatus = async function(bkId, newStatus, roleView) {
+      await updateDoc(doc(db, 'appointments', bkId), { status: newStatus });
+      if (roleView === 'doctor') { loadDoctorBookings(); renderDoctorSlotGrid(); }
+      else { loadAdminData(); }
+    };
+
+    function statusBadgeHtml(st) {
+      const cls = st === 'Completed' ? 'badge-completed' : st === 'Cancelled' ? 'badge-cancelled' : '';
+      return `<span class="badge ${cls}">${st}</span>`;
+    }
+
+    async function loadPatientBookings() {
+      const box = document.getElementById('patientBookings');
+      const snap = await getDocs(query(collection(db, 'appointments'), where('patientId', '==', currentUserData.uid)));
       box.innerHTML = snap.empty ? '<p>Koi appointment nahi hai.</p>' : '';
       snap.forEach(b => {
         const bk = b.data();
-        box.innerHTML += `<div class="card"><strong>${isDoc ? 'Patient: ' + bk.patientName : bk.doctorName}</strong><p>Date: ${bk.date} ${bk.timeSlot ? '• Time: <b>' + bk.timeSlot + '</b>' : ''} • ${bk.status}</p></div>`;
+        const msg = `Namaste ${bk.doctorName}, mera appointment ${bk.date} (${bk.timeSlot || ''}) ko hai. Patient: ${bk.patientName}`;
+        box.innerHTML += `<div class="card"><strong>${bk.doctorName}</strong> ${statusBadgeHtml(bk.status)}<p>Date: ${bk.date} ${bk.timeSlot ? '• Time: <b>' + bk.timeSlot + '</b>' : ''}</p><div class="btn-row"><a class="btn-wa" target="_blank" href="${makeWaLink(bk.doctorPhone, msg)}">WhatsApp Doctor</a></div></div>`;
+      });
+    }
+
+    async function loadDoctorBookings() {
+      const box = document.getElementById('doctorBookings');
+      const snap = await getDocs(query(collection(db, 'appointments'), where('doctorId', '==', window.currentDoctorId)));
+      box.innerHTML = snap.empty ? '<p>Koi appointment nahi hai.</p>' : '';
+      snap.forEach(b => {
+        const bk = b.data();
+        const msg = `Namaste ${bk.patientName}, aapka ${bk.doctorName} ke saath ${bk.date} (${bk.timeSlot || ''}) ka appointment status ab *${bk.status}* hai.`;
+        box.innerHTML += `<div class="card"><strong>Patient: ${bk.patientName}</strong> ${statusBadgeHtml(bk.status)}<p>Date: ${bk.date} ${bk.timeSlot ? '• Time: <b>' + bk.timeSlot + '</b>' : ''}</p><div class="btn-row"><button class="btn-success" onclick="updateBookingStatus('${b.id}','Completed','doctor')">Complete</button><button class="btn-danger" onclick="updateBookingStatus('${b.id}','Cancelled','doctor')">Cancel</button><a class="btn-wa" target="_blank" href="${makeWaLink(bk.patientPhone, msg)}">WhatsApp Patient</a></div></div>`;
       });
     }
 
@@ -389,7 +420,8 @@
       bBox.innerHTML = bSnap.empty ? '<p>Koi appointment nahi hai.</p>' : '';
       bSnap.forEach(b => {
         const bk = b.data();
-        bBox.innerHTML += `<div class="card"><strong>${bk.patientName}</strong> → ${bk.doctorName}<p>Date: ${bk.date} ${bk.timeSlot ? '(' + bk.timeSlot + ')' : ''} • ${bk.status}</p></div>`;
+        const msg = `Namaste ${bk.patientName}, aapka ${bk.doctorName} ke saath ${bk.date} (${bk.timeSlot || ''}) ka appointment status *${bk.status}* hai.`;
+        bBox.innerHTML += `<div class="card"><strong>${bk.patientName}</strong> → ${bk.doctorName} ${statusBadgeHtml(bk.status)}<p>Date: ${bk.date} ${bk.timeSlot ? '(' + bk.timeSlot + ')' : ''}</p><div class="btn-row"><button class="btn-success" onclick="updateBookingStatus('${b.id}','Completed','admin')">Complete</button><button class="btn-danger" onclick="updateBookingStatus('${b.id}','Cancelled','admin')">Cancel</button><a class="btn-wa" target="_blank" href="${makeWaLink(bk.patientPhone, msg)}">WhatsApp</a></div></div>`;
       });
     }
 
