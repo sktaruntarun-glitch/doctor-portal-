@@ -53,7 +53,6 @@
         <select id="roleSelect" onchange="toggleDoctorFields()">
           <option value="patient">Patient</option>
           <option value="doctor" selected>Doctor</option>
-          <option value="admin">Admin</option>
         </select>
       </div>
       <div id="registerNameDiv"><input type="text" id="fullName" placeholder="Poora Naam" /></div>
@@ -198,6 +197,9 @@
         if (authMode === 'register') {
           const name = document.getElementById('fullName').value.trim();
           const role = document.getElementById('roleSelect').value;
+                    const role = document.getElementById('roleSelect').value;
+          if (role === 'admin' && email.toLowerCase() !== 'sktarun.tarun@gmail.com') return (msg.innerText = 'Admin registration band hai.');
+
           if (!name) return (msg.innerText = 'Poora naam likhein.');
           let userData = { name, email, role };
           if (role === 'doctor') {
