@@ -424,14 +424,15 @@
       });
     }
 
-    async function loadDoctorBookings() {
+        async function loadDoctorBookings() {
       const box = document.getElementById('doctorBookings');
       const snap = await getDocs(query(collection(db, 'appointments'), where('doctorId', '==', window.currentDoctorId)));
       box.innerHTML = snap.empty ? '<p>Koi appointment nahi hai.</p>' : '';
       snap.forEach(b => {
         const bk = b.data();
-        const msg = `Namaste ${bk.patientName}, aapka ${bk.doctorName} ke saath ${bk.date} (${bk.timeSlot || ''}) ka appointment status ab *${bk.status}* hai.`;
-        box.innerHTML += `<div class="card"><strong>Patient: ${bk.patientName}</strong> ${statusBadgeHtml(bk.status)}<p>Date: ${bk.date} ${bk.timeSlot ? '• Time: <b>' + bk.timeSlot + '</b>' : ''}</p><div class="btn-row"><button class="btn-success" onclick="updateBookingStatus('${b.id}','Completed','doctor')">Complete</button><button class="btn-danger" onclick="updateBookingStatus('${b.id}','Cancelled','doctor')">Cancel</button><a class="btn-wa" target="_blank" href="${makeWaLink(bk.patientPhone, msg)}">WhatsApp Patient</a></div></div>`;
+        const token = b.id.slice(-5).toUpperCase();
+        const msg = `Namaste ${bk.patientName}, aapka ${bk.doctorName} ke saath ${bk.date} (${bk.timeSlot || ''}) ka appointment (Token #${token}) status ab *${bk.status}* hai.`;
+        box.innerHTML += `<div class="card"><strong>Patient: ${bk.patientName}</strong> ${statusBadgeHtml(bk.status)} <span class="badge" style="background:#f1f5f9; color:#334155;">Token #${token}</span><p>Date: ${bk.date} ${bk.timeSlot ? '• Time: <b>' + bk.timeSlot + '</b>' : ''}</p><div class="btn-row"><button class="btn-success" onclick="updateBookingStatus('${b.id}','Completed','doctor')">Complete</button><button class="btn-danger" onclick="updateBookingStatus('${b.id}','Cancelled','doctor')">Cancel</button><a class="btn-wa" target="_blank" href="${makeWaLink(bk.patientPhone, msg)}">WhatsApp Patient</a></div></div>`;
       });
     }
 
@@ -457,8 +458,9 @@
       bBox.innerHTML = bSnap.empty ? '<p>Koi appointment nahi hai.</p>' : '';
       bSnap.forEach(b => {
         const bk = b.data();
-        const msg = `Namaste ${bk.patientName}, aapka ${bk.doctorName} ke saath ${bk.date} (${bk.timeSlot || ''}) ka appointment status *${bk.status}* hai.`;
-        bBox.innerHTML += `<div class="card"><strong>${bk.patientName}</strong> → ${bk.doctorName} ${statusBadgeHtml(bk.status)}<p>Date: ${bk.date} ${bk.timeSlot ? '(' + bk.timeSlot + ')' : ''}</p><div class="btn-row"><button class="btn-success" onclick="updateBookingStatus('${b.id}','Completed','admin')">Complete</button><button class="btn-danger" onclick="updateBookingStatus('${b.id}','Cancelled','admin')">Cancel</button><a class="btn-wa" target="_blank" href="${makeWaLink(bk.patientPhone, msg)}">WhatsApp</a></div></div>`;
+        const token = b.id.slice(-5).toUpperCase();
+        const msg = `Namaste ${bk.patientName}, aapka ${bk.doctorName} ke saath ${bk.date} (${bk.timeSlot || ''}) ka appointment (Token #${token}) status *${bk.status}* hai.`;
+        bBox.innerHTML += `<div class="card"><strong>${bk.patientName}</strong> → ${bk.doctorName} ${statusBadgeHtml(bk.status)} <span class="badge" style="background:#f1f5f9; color:#334155;">Token #${token}</span><p>Date: ${bk.date} ${bk.timeSlot ? '(' + bk.timeSlot + ')' : ''}</p><div class="btn-row"><button class="btn-success" onclick="updateBookingStatus('${b.id}','Completed','admin')">Complete</button><button class="btn-danger" onclick="updateBookingStatus('${b.id}','Cancelled','admin')">Cancel</button><a class="btn-wa" target="_blank" href="${makeWaLink(bk.patientPhone, msg)}">WhatsApp</a></div></div>`;
       });
     }
 
