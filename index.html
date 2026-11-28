@@ -428,4 +428,194 @@
         return;
       }
 
-      const t
+            const todayStr = getTodayDateStr();
+      snap.forEach((docSnap) => {
+        const d = docSnap.data();
+        const docId = docSnap.id;
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <h3>${d.name} <span class="badge badge-approved">Verified</span></h3>
+          <p>${d.specialization} • ${d.clinicName}</p>
+          <p>Fee: <strong>₹${d.fee}</strong></p>
+          <label style="margin-top:8px;">1. Date Chunein:</label>
+          <input type="date" id="date_${docId}" value="${todayStr}" min="${todayStr}" onchange="loadPatientSlotsForDoctor('${docId}')" />
+          <label>2. Time Slot Chunein (Green = Available):</label>
+          <div class="legend">
+            <span><i class="dot" style="background:#dcfce7; border:1px solid #86efac;"></i> Available</span>
+            <span><i class="dot" style="background:#1d63dc;"></i> Selected</span>
+            <span><i class="dot" style="background:#e0e7ff; border:1px solid #a5b4fc;"></i> Booked</span>
+            <span><i class="dot" style="background:#fee2e2; border:1px solid #fca5a5;"></i> Unavailable</span>
+          </div>
+          <div id="patGrid_${docId}" class="slot-grid">Loading slots...</div>
+          <button class="btn-primary" style="margin-top:10px;" onclick="bookAppointment('${docId}', '${d.name}', '${patientId}', '${patientName}')">Book Selected Slot</button>
+        `;
+        container.appendChild(card);
+        loadPatientSlotsForDoctor(docId);
+      });
+    }
+
+    window.loadPatientSlotsForDoctor = async function(doctorId) {
+      const dateStr = document.getElementById(`date_${doctorId}`).value;
+      const grid = document.getElementById(`patGrid_${doctorId}`);
+      selectedPatientSlots[doctorId] = null;
+      if (!dateStr) return;
+
+      grid.innerHTML = 'Slots load ho rahe hain...';
+
+      const docSnap = await getDoc(doc(db, 'users', doctorId));
+      const unavailMap = (docSnap.data().unavailableSlots || {})[dateStr] || [];
+
+      const qBk = query(collection(db, 'appointments'), where('doctorId', '==', doctorId), where('date', '==', dateStr));
+      const bkSnap = await getDocs(qBk);
+      const bookedSlots = [];
+      bkSnap.forEach(b => { if (b.data().timeSlot) bookedSlots.push(b.data().timeSlot); });
+
+      grid.innerHTML = '';
+      ALL_96_SLOTS.forEach(slot => {
+        const btn = document.createElement('button');
+        btn.innerText = slot;
+        btn.className = 'slot-btn';
+
+        if (bookedSlots.includes(slot)) {
+          btn.classList.add('slot-booked');
+          btn.disabled = true;
+          btn.title = 'Already Booked';
+        } else if (unavailMap.includes(slot)) {
+          btn.classList.add('slot-unavail');
+          btn.disabled = true;
+          btn.title = 'Doctor Not Available';
+        } else {
+          btn.classList.add('slot-avail');
+          btn.onclick = () => {
+            grid.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('slot-selected'));
+            btn.classList.add('slot-selected');
+            selectedPatientSlots[doctorId] = slot;
+          };
+        }
+        grid.appendChild(btn);
+      });
+    };
+
+    window.bookAppointment = async function(doctorId, doctorName, patientId, patientName) {
+      const dateVal = document.getElementById(`date_${doctorId}`).value;
+      const timeSlotVal = selectedPatientSlots[doctorId];
+
+      if (!dateVal) {
+        alert('Kripya appointment ki date chunein.');
+        return;
+      }
+      if (!timeSlotVal) {
+        alert('Kripya kisi Available (Green) time slot button par tap karke time chunein.');
+        return;
+      }
+
+      const qCheck = query(
+        collection(db, 'appointments'),
+        where('doctorId', '==', doctorId),
+        where('date', '==', dateVal),
+        where('timeSlot', '==', timeSlotVal)
+      );
+      const checkSnap = await getDocs(qCheck);
+      if (!checkSnap.empty) {
+        alert('Sorry! Yeh slot abhi-abhi kisi aur patient ne book kar liya hai. Kripya doosra slot chunein.');
+        loadPatientSlotsForDoctor(doctorId);
+        return;
+      }
+
+      await addDoc(collection(db, 'appointments'), {
+        doctorId,
+        doctorName,
+        patientId,
+        patientName,
+        date: dateVal,
+        timeSlot: timeSlotVal,
+        status: 'Booked'
+      });
+      alert(`Appointment Booked! (${dateVal} at ${timeSlotVal})`);
+      loadPatientSlotsForDoctor(doctorId);
+      loadPatientBookings(patientId);
+    };
+
+    async function loadPatientBookings(patientId) {
+      const container = document.getElementById('patientBookings');
+      const q = query(collection(db, 'appointments'), where('patientId', '==', patientId));
+      const snap = await getDocs(q);
+      container.innerHTML = snap.empty ? '<p>Koi booking nahi mili.</p>' : '';
+      snap.forEach((b) => {
+        const bk = b.data();
+        const timeText = bk.timeSlot ? ` • Time: <strong>${bk.timeSlot}</strong>` : '';
+        container.innerHTML += `<div class="card"><strong>${bk.doctorName}</strong><p>Date: ${bk.date}${timeText} • Status: ${bk.status}</p></div>`;
+      });
+    }
+
+    async function loadDoctorBookings(doctorId) {
+      const container = document.getElementById('doctorBookings');
+      const q = query(collection(db, 'appointments'), where('doctorId', '==', doctorId));
+      const snap = await getDocs(q);
+      container.innerHTML = snap.empty ? '<p>Abhi koi patient appointment nahi hai.</p>' : '';
+      snap.forEach((b) => {
+        const bk = b.data();
+        const timeText = bk.timeSlot ? ` • Time: <strong>${bk.timeSlot}</strong>` : '';
+        container.innerHTML += `<div class="card"><strong>Patient: ${bk.patientName}</strong><p>Date: ${bk.date}${timeText} • Status: ${bk.status}</p></div>`;
+      });
+    }
+
+    window.toggleDoctorApproval = async function(docId, currentStatus) {
+      await updateDoc(doc(db, 'users', docId), { approved: !currentStatus });
+      loadAdminData();
+    };
+
+    window.deleteDoctorRecord = async function(docId, docName) {
+      if (confirm(`Kya aap ${docName} ko list se hatana (delete karna) chahte hain?`)) {
+        await deleteDoc(doc(db, 'users', docId));
+        loadAdminData();
+      }
+    };
+
+    async function loadAdminData() {
+      const docContainer = document.getElementById('adminDoctorsList');
+      const qDocs = query(collection(db, 'users'), where('role', '==', 'doctor'));
+      const docSnap = await getDocs(qDocs);
+      docContainer.innerHTML = docSnap.empty ? '<p>Koi doctor registered nahi hai.</p>' : '';
+      docSnap.forEach((d) => {
+        const info = d.data();
+        const isApproved = info.approved === true;
+        const statusBadge = isApproved
+          ? '<span class="badge badge-approved">Approved</span>'
+          : '<span class="badge badge-pending">Pending</span>';
+        const toggleBtn = isApproved
+          ? `<button class="btn-warning" onclick="toggleDoctorApproval('${d.id}', true)">Unapprove (Hide)</button>`
+          : `<button class="btn-success" onclick="toggleDoctorApproval('${d.id}', false)">Approve Doctor</button>`;
+
+        docContainer.innerHTML += `
+          <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <strong>${info.name} (${info.specialization})</strong>
+              ${statusBadge}
+            </div>
+            <p>${info.clinicName} • Reg: ${info.regNumber || 'N/A'} • Fee: ₹${info.fee}</p>
+            <div class="btn-row">
+              ${toggleBtn}
+              <button class="btn-danger" onclick="deleteDoctorRecord('${d.id}', '${info.name}')">Delete</button>
+            </div>
+          </div>`;
+      });
+
+      const bkContainer = document.getElementById('adminBookingsList');
+      const bkSnap = await getDocs(collection(db, 'appointments'));
+      bkContainer.innerHTML = bkSnap.empty ? '<p>Koi appointment nahi hai.</p>' : '';
+      bkSnap.forEach((b) => {
+        const bk = b.data();
+        const timeText = bk.timeSlot ? ` (${bk.timeSlot})` : '';
+        bkContainer.innerHTML += `<div class="card"><strong>${bk.patientName}</strong> → ${bk.doctorName}<p>Date: ${bk.date}${timeText} • ${bk.status}</p></div>`;
+      });
+    }
+
+    window.logoutUser = async function() {
+      await signOut(auth);
+      location.reload();
+    };
+  </script>
+</body>
+</html>
