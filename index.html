@@ -19,6 +19,7 @@
     .search-bar select { flex: 1; margin-bottom: 0; border-color: #93c5fd; background: #fff; }
     .btn-primary { width: 100%; padding: 12px; border: none; border-radius: 10px; background: #1d63dc; color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 4px; }
     .btn-wa { display: inline-block; text-decoration: none; background: #25d366; color: #fff; padding: 7px 11px; border-radius: 8px; font-weight: 600; font-size: 12px; border: none; cursor: pointer; }
+    .btn-map { display: inline-block; text-decoration: none; background: #0284c7; color: #fff; padding: 5px 10px; border-radius: 7px; font-weight: 600; font-size: 11px; margin-top: 4px; }
     .btn-danger { background: #dc2626; color: #fff; border: none; padding: 7px 11px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 12px; }
     .btn-success { background: #16a34a; color: #fff; border: none; padding: 7px 11px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 12px; }
     .btn-warning { background: #d97706; color: #fff; border: none; padding: 7px 11px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 12px; }
@@ -29,6 +30,8 @@
     .card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 13px; margin-bottom: 12px; }
     .card h3 { margin: 0 0 6px; color: #0f294a; font-size: 16px; }
     .card p { margin: 3px 0; font-size: 13px; color: #475569; }
+    .doc-header { display: flex; gap: 12px; align-items: center; margin-bottom: 8px; }
+    .doc-avatar { width: 58px; height: 58px; border-radius: 50%; object-fit: cover; border: 2px solid #93c5fd; background: #e2e8f0; flex-shrink: 0; }
     .badge { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; background: #dbeafe; color: #1d4ed8; }
     .badge-pending { background: #fef3c7; color: #b45309; }
     .badge-approved, .badge-completed { background: #dcfce7; color: #15803d; }
@@ -67,6 +70,9 @@
       <div id="doctorFields">
         <input type="text" id="specialization" placeholder="Degree / Specialization" />
         <input type="text" id="clinicName" placeholder="Clinic ka Naam" />
+        <input type="text" id="clinicAddress" placeholder="Clinic Address (Area / City)" />
+        <input type="url" id="mapLink" placeholder="Google Maps Link (Optional)" />
+        <input type="url" id="photoUrl" placeholder="Photo URL - imgbb link (Optional)" />
         <input type="text" id="regNumber" placeholder="Registration No." />
         <input type="number" id="fee" placeholder="Fee (₹)" />
       </div>
@@ -87,7 +93,7 @@
         <div id="bookingWaAlert" class="wa-banner hidden"></div>
         <h3>Verified Doctors</h3>
         <div class="search-bar">
-          <input type="text" id="docSearchInput" placeholder="Doctor ya Clinic khojein..." oninput="filterDoctors()" />
+          <input type="text" id="docSearchInput" placeholder="Doctor, Clinic ya Area khojein..." oninput="filterDoctors()" />
           <select id="docSpecFilter" onchange="filterDoctors()">
             <option value="">All Degrees</option>
           </select>
@@ -100,6 +106,13 @@
       <div id="doctorDashboard" class="hidden">
         <div id="doctorPendingAlert" class="alert-box hidden">Aapka profile <strong>Admin Verification ke liye Pending</strong> hai.</div>
         <div id="doctorProfileCard" class="card"></div>
+        <div class="card">
+          <h3>Clinic Profile Update (Photo / Address / Map)</h3>
+          <input type="text" id="editAddress" placeholder="Clinic Address" />
+          <input type="url" id="editMapLink" placeholder="Google Maps Link" />
+          <input type="url" id="editPhotoUrl" placeholder="Doctor Photo URL (imgbb link)" />
+          <button class="btn-primary" onclick="updateDoctorProfile()">Details Save Karein</button>
+        </div>
         <div class="card">
           <h3>24-Hour Time Slot Control (15-Min)</h3>
           <input type="date" id="docManageDate" onchange="renderDoctorSlotGrid()" />
@@ -172,6 +185,7 @@
     let currentUserData = null;
     let selectedSlots = {};
     let verifiedDoctorsCache = [];
+    const DEFAULT_AVATAR = "https://cdn-icons-png.flaticon.com/512/3774/3774299.png";
 
     const ALL_SLOTS = [];
     for (let h = 0; h < 24; h++) {
@@ -187,6 +201,21 @@
       const clean = (phone || '').replace(/\D/g, '');
       const num = clean.length === 10 ? '91' + clean : clean;
       return num ? `https://wa.me/${num}?text=${encodeURIComponent(text)}` : `https://wa.me/?text=${encodeURIComponent(text)}`;
+    }
+
+    function renderDoctorCardHeader(d) {
+      const pic = d.photoUrl || DEFAULT_AVATAR;
+      const addrHtml = d.clinicAddress ? `<p>📍 ${d.clinicAddress}</p>` : '';
+      const mapHtml = d.mapLink ? `<a class="btn-map" target="_blank" href="${d.mapLink}">Open in Google Maps</a>` : '';
+      return `<div class="doc-header">
+        <img class="doc-avatar" src="${pic}" onerror="this.src='${DEFAULT_AVATAR}'" alt="Doctor" />
+        <div>
+          <h3 style="margin:0 0 3px;">${d.name} <span class="badge ${d.approved ? 'badge-approved' : 'badge-pending'}">${d.approved ? 'Verified' : 'Pending'}</span></h3>
+          <p>${d.specialization} • ${d.clinicName} • Fee: ₹${d.fee}</p>
+          ${addrHtml}
+          ${mapHtml}
+        </div>
+      </div>`;
     }
 
     window.handleAuth = async function() {
@@ -205,10 +234,13 @@
           if (role === 'doctor') {
             const specialization = document.getElementById('specialization').value.trim();
             const clinicName = document.getElementById('clinicName').value.trim();
+            const clinicAddress = document.getElementById('clinicAddress').value.trim();
+            const mapLink = document.getElementById('mapLink').value.trim();
+            const photoUrl = document.getElementById('photoUrl').value.trim();
             const regNumber = document.getElementById('regNumber').value.trim();
             const fee = document.getElementById('fee').value.trim();
-            if (!specialization || !clinicName || !regNumber || !fee) return (msg.innerText = 'Doctor ki saari detail bharein.');
-            userData = { ...userData, specialization, clinicName, regNumber, fee, approved: false, unavailableSlots: {} };
+            if (!specialization || !clinicName || !clinicAddress || !regNumber || !fee) return (msg.innerText = 'Doctor ki saari zaroori detail (Address sahit) bharein.');
+            userData = { ...userData, specialization, clinicName, clinicAddress, mapLink, photoUrl, regNumber, fee, approved: false, unavailableSlots: {} };
           }
           const cred = await createUserWithEmailAndPassword(auth, email, password);
           await setDoc(doc(db, 'users', cred.user.uid), userData);
@@ -245,7 +277,10 @@
         window.currentDoctorId = user.uid;
         document.getElementById('doctorDashboard').classList.remove('hidden');
         document.getElementById('doctorPendingAlert').classList.toggle('hidden', !!d.approved);
-        document.getElementById('doctorProfileCard').innerHTML = `<h3>${d.name} <span class="badge ${d.approved ? 'badge-approved' : 'badge-pending'}">${d.approved ? 'Verified' : 'Pending'}</span></h3><p>${d.specialization} • ${d.clinicName} • Fee: ₹${d.fee}</p>`;
+        document.getElementById('doctorProfileCard').innerHTML = renderDoctorCardHeader(d);
+        document.getElementById('editAddress').value = d.clinicAddress || '';
+        document.getElementById('editMapLink').value = d.mapLink || '';
+        document.getElementById('editPhotoUrl').value = d.photoUrl || '';
         const dt = document.getElementById('docManageDate');
         if (!dt.value) dt.value = todayStr();
         renderDoctorSlotGrid();
@@ -257,7 +292,17 @@
         loadAdminData();
       }
     });
-        async function buildSlotControlGrid(docId, dateStr, gridElId, refreshFn) {
+    window.updateDoctorProfile = async function() {
+      const clinicAddress = document.getElementById('editAddress').value.trim();
+      const mapLink = document.getElementById('editMapLink').value.trim();
+      const photoUrl = document.getElementById('editPhotoUrl').value.trim();
+      await updateDoc(doc(db, 'users', window.currentDoctorId), { clinicAddress, mapLink, photoUrl });
+      currentUserData = { ...currentUserData, clinicAddress, mapLink, photoUrl };
+      document.getElementById('doctorProfileCard').innerHTML = renderDoctorCardHeader(currentUserData);
+      alert('Clinic Profile update ho gaya!');
+    };
+
+    async function buildSlotControlGrid(docId, dateStr, gridElId, refreshFn) {
       const grid = document.getElementById(gridElId);
       if (!docId || !dateStr) return;
       grid.innerHTML = 'Loading...';
@@ -328,6 +373,7 @@
         const matchText = !term ||
           (info.name || '').toLowerCase().includes(term) ||
           (info.clinicName || '').toLowerCase().includes(term) ||
+          (info.clinicAddress || '').toLowerCase().includes(term) ||
           (info.specialization || '').toLowerCase().includes(term);
         const matchSpec = !specVal || (info.specialization || '').toLowerCase().trim() === specVal;
         return matchText && matchSpec;
@@ -337,7 +383,7 @@
       filtered.forEach(info => {
         const div = document.createElement('div');
         div.className = 'card';
-        div.innerHTML = `<h3>${info.name} <span class="badge badge-approved">Verified</span></h3><p>${info.specialization} • ${info.clinicName} • Fee: ₹${info.fee}</p><input type="date" id="date_${info.id}" value="${todayStr()}" min="${todayStr()}" onchange="loadPatSlots('${info.id}')" /><div id="grid_${info.id}" class="slot-grid"></div><button class="btn-primary" onclick="bookSlot('${info.id}','${info.name}','${info.clinicName || ''}','${info.fee || ''}')">Book Selected Slot</button>`;
+        div.innerHTML = `${renderDoctorCardHeader(info)}<input type="date" id="date_${info.id}" value="${todayStr()}" min="${todayStr()}" onchange="loadPatSlots('${info.id}')" /><div id="grid_${info.id}" class="slot-grid"></div><button class="btn-primary" onclick="bookSlot('${info.id}','${info.name}','${info.clinicName || ''}','${info.fee || ''}')">Book Selected Slot</button>`;
         box.appendChild(div);
         loadPatSlots(info.id);
       });
@@ -424,7 +470,7 @@
       });
     }
 
-        async function loadDoctorBookings() {
+    async function loadDoctorBookings() {
       const box = document.getElementById('doctorBookings');
       const snap = await getDocs(query(collection(db, 'appointments'), where('doctorId', '==', window.currentDoctorId)));
       box.innerHTML = snap.empty ? '<p>Koi appointment nahi hai.</p>' : '';
@@ -448,7 +494,7 @@
       dSnap.forEach(d => {
         const i = d.data();
         const ok = i.approved === true;
-        dBox.innerHTML += `<div class="card"><strong>${i.name} (${i.specialization})</strong> <span class="badge ${ok ? 'badge-approved' : 'badge-pending'}">${ok ? 'Approved' : 'Pending'}</span><p>${i.clinicName} • Fee: ₹${i.fee}</p><div class="btn-row"><button class="${ok ? 'btn-warning' : 'btn-success'}" onclick="toggleApprove('${d.id}',${ok})">${ok ? 'Unapprove' : 'Approve'}</button><button class="btn-danger" onclick="delDoc('${d.id}','${i.name}')">Delete</button></div></div>`;
+        dBox.innerHTML += `<div class="card">${renderDoctorCardHeader(i)}<div class="btn-row"><button class="${ok ? 'btn-warning' : 'btn-success'}" onclick="toggleApprove('${d.id}',${ok})">${ok ? 'Unapprove' : 'Approve'}</button><button class="btn-danger" onclick="delDoc('${d.id}','${i.name}')">Delete</button></div></div>`;
         dSel.innerHTML += `<option value="${d.id}">${i.name} (${i.clinicName})</option>`;
       });
       if (!dSnap.empty) renderAdminSlotGrid();
