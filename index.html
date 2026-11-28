@@ -257,7 +257,7 @@
         loadAdminData();
       }
     });
-    async function buildSlotControlGrid(docId, dateStr, gridElId, refreshFn) {
+        async function buildSlotControlGrid(docId, dateStr, gridElId, refreshFn) {
       const grid = document.getElementById(gridElId);
       if (!docId || !dateStr) return;
       grid.innerHTML = 'Loading...';
@@ -337,7 +337,7 @@
       filtered.forEach(info => {
         const div = document.createElement('div');
         div.className = 'card';
-        div.innerHTML = `<h3>${info.name} <span class="badge badge-approved">Verified</span></h3><p>${info.specialization} • ${info.clinicName} • Fee: ₹${info.fee}</p><input type="date" id="date_${info.id}" value="${todayStr()}" min="${todayStr()}" onchange="loadPatSlots('${info.id}')" /><div id="grid_${info.id}" class="slot-grid"></div><button class="btn-primary" onclick="bookSlot('${info.id}','${info.name}','${info.phone || ''}')">Book Selected Slot</button>`;
+        div.innerHTML = `<h3>${info.name} <span class="badge badge-approved">Verified</span></h3><p>${info.specialization} • ${info.clinicName} • Fee: ₹${info.fee}</p><input type="date" id="date_${info.id}" value="${todayStr()}" min="${todayStr()}" onchange="loadPatSlots('${info.id}')" /><div id="grid_${info.id}" class="slot-grid"></div><button class="btn-primary" onclick="bookSlot('${info.id}','${info.name}','${info.clinicName || ''}','${info.fee || ''}')">Book Selected Slot</button>`;
         box.appendChild(div);
         loadPatSlots(info.id);
       });
@@ -373,7 +373,7 @@
       });
     };
 
-    window.bookSlot = async function(docId, docName, docPhone) {
+    window.bookSlot = async function(docId, docName, clinicName, fee) {
       const date = document.getElementById(`date_${docId}`).value;
       const timeSlot = selectedSlots[docId];
       if (!date || !timeSlot) return alert('Date aur Green Time Slot chunein.');
@@ -384,17 +384,19 @@
 
       const pName = currentUserData.name;
       const pPhone = currentUserData.phone || '';
-      await addDoc(collection(db, 'appointments'), {
-        doctorId: docId, doctorName: docName, doctorPhone: docPhone,
+      const docRef = await addDoc(collection(db, 'appointments'), {
+        doctorId: docId, doctorName: docName, clinicName, fee,
         patientId: currentUserData.uid, patientName: pName, patientPhone: pPhone,
         date, timeSlot, status: 'Booked'
       });
 
-      const docMsg = `Namaste ${docName}, naya appointment book hua hai:\nPatient: ${pName}\nMobile: ${pPhone}\nDate: ${date}\nTime: ${timeSlot}`;
-      const patMsg = `Appointment Confirmed!\nDoctor: ${docName}\nDate: ${date}\nTime: ${timeSlot}\nPatient: ${pName}`;
+      const token = docRef.id.slice(-5).toUpperCase();
       const banner = document.getElementById('bookingWaAlert');
       banner.classList.remove('hidden');
-      banner.innerHTML = `<strong>Appointment Booked (${date} at ${timeSlot})!</strong><div class="btn-row" style="justify-content:center; margin-top:8px;"><a class="btn-wa" target="_blank" href="${makeWaLink(docPhone, docMsg)}">Doctor ko WhatsApp Bhejein</a><a class="btn-wa" target="_blank" href="${makeWaLink(pPhone, patMsg)}">Apne WhatsApp par Save Karein</a></div>`;
+      banner.innerHTML = `<div style="font-size:15px; font-weight:700; color:#15803d;">Appointment Confirmed!</div>
+        <div style="font-size:13px; color:#1e293b; margin-top:4px;">Token: <strong>#${token}</strong> • ${docName} (${clinicName})</div>
+        <div style="font-size:13px; color:#1e293b;">Date: <strong>${date}</strong> • Time: <strong>${timeSlot}</strong> • Fee: ₹${fee}</div>
+        <div style="font-size:11px; color:#475569; margin-top:5px;">Clinic par dikhane ke liye is slip ka screenshot le lein.</div>`;
 
       loadPatSlots(docId);
       loadPatientBookings();
@@ -417,8 +419,8 @@
       box.innerHTML = snap.empty ? '<p>Koi appointment nahi hai.</p>' : '';
       snap.forEach(b => {
         const bk = b.data();
-        const msg = `Namaste ${bk.doctorName}, mera appointment ${bk.date} (${bk.timeSlot || ''}) ko hai. Patient: ${bk.patientName}`;
-        box.innerHTML += `<div class="card"><strong>${bk.doctorName}</strong> ${statusBadgeHtml(bk.status)}<p>Date: ${bk.date} ${bk.timeSlot ? '• Time: <b>' + bk.timeSlot + '</b>' : ''}</p><div class="btn-row"><a class="btn-wa" target="_blank" href="${makeWaLink(bk.doctorPhone, msg)}">WhatsApp Doctor</a></div></div>`;
+        const token = b.id.slice(-5).toUpperCase();
+        box.innerHTML += `<div class="card"><strong>${bk.doctorName}</strong> ${statusBadgeHtml(bk.status)} <span class="badge" style="background:#f1f5f9; color:#334155;">Token #${token}</span><p>${bk.clinicName ? bk.clinicName + ' • ' : ''}Date: ${bk.date} ${bk.timeSlot ? '• Time: <b>' + bk.timeSlot + '</b>' : ''}</p></div>`;
       });
     }
 
