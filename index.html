@@ -5,155 +5,134 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MediConnect Portal</title>
   <style>
-    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
     body { margin: 0; background: #f0f4f8; color: #1e293b; display: flex; justify-content: center; padding: 14px; }
     .container { width: 100%; max-width: 520px; background: #fff; border-radius: 16px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
-    h1 { text-align: center; color: #0f294a; font-size: 23px; margin-top: 0; margin-bottom: 18px; }
-    .tabs { display: flex; gap: 10px; margin-bottom: 16px; }
-    .tab-btn { flex: 1; padding: 11px; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; background: #e2e8f0; color: #334155; }
+    h1 { text-align: center; color: #0f294a; font-size: 22px; margin: 0 0 16px; }
+    .tabs { display: flex; gap: 10px; margin-bottom: 14px; }
+    .tab-btn { flex: 1; padding: 10px; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; background: #e2e8f0; color: #334155; }
     .tab-btn.active { background: #1d63dc; color: #fff; }
-    label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; color: #1e293b; }
-    select, input { width: 100%; padding: 11px 13px; margin-bottom: 12px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 15px; background: #f8fafc; outline: none; }
-    select:focus, input:focus { border-color: #1d63dc; background: #fff; }
-    .btn-primary { width: 100%; padding: 13px; border: none; border-radius: 10px; background: #1d63dc; color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 6px; }
+    label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 13px; }
+    select, input { width: 100%; padding: 10px 12px; margin-bottom: 10px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 14px; background: #f8fafc; }
+    .btn-primary { width: 100%; padding: 12px; border: none; border-radius: 10px; background: #1d63dc; color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 4px; }
     .btn-danger { background: #dc2626; color: #fff; border: none; padding: 7px 11px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 12px; }
     .btn-success { background: #16a34a; color: #fff; border: none; padding: 7px 11px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 12px; }
     .btn-warning { background: #d97706; color: #fff; border: none; padding: 7px 11px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 12px; }
     .btn-row { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
-    .error-msg { color: #dc2626; text-align: center; font-size: 14px; margin-top: 10px; font-weight: 500; }
-    .success-msg { color: #16a34a; text-align: center; font-size: 14px; margin-top: 10px; font-weight: 500; }
+    .error-msg { color: #dc2626; text-align: center; font-size: 13px; margin-top: 8px; font-weight: 500; }
     .hidden { display: none !important; }
-    .header-bar { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 16px; }
-    .card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; margin-bottom: 14px; }
-    .card h3 { margin: 0 0 6px 0; color: #0f294a; font-size: 17px; }
-    .card p { margin: 4px 0; font-size: 14px; color: #475569; }
-    .badge { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; background: #dbeafe; color: #1d4ed8; }
+    .header-bar { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 14px; }
+    .card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 13px; margin-bottom: 12px; }
+    .card h3 { margin: 0 0 6px; color: #0f294a; font-size: 16px; }
+    .card p { margin: 3px 0; font-size: 13px; color: #475569; }
+    .badge { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; background: #dbeafe; color: #1d4ed8; }
     .badge-pending { background: #fef3c7; color: #b45309; }
     .badge-approved { background: #dcfce7; color: #15803d; }
-    .alert-box { background: #fef3c7; border: 1px solid #f59e0b; color: #92400e; padding: 12px; border-radius: 10px; font-size: 14px; margin-bottom: 14px; font-weight: 500; }
-
-    /* 24-HOUR 15-MIN SLOT GRID */
-    .legend { display: flex; gap: 10px; font-size: 12px; margin: 8px 0; flex-wrap: wrap; }
+    .alert-box { background: #fef3c7; border: 1px solid #f59e0b; color: #92400e; padding: 10px; border-radius: 10px; font-size: 13px; margin-bottom: 12px; }
+    .legend { display: flex; gap: 8px; font-size: 11px; margin: 6px 0; flex-wrap: wrap; }
     .legend span { display: flex; align-items: center; gap: 4px; font-weight: 600; }
-    .dot { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
-    .slot-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 6px;
-      max-height: 270px;
-      overflow-y: auto;
-      padding: 8px;
-      background: #fff;
-      border: 1px solid #cbd5e1;
-      border-radius: 10px;
-      margin-top: 8px;
-    }
-    .slot-btn {
-      padding: 8px 4px;
-      font-size: 12px;
-      font-weight: 600;
-      border-radius: 7px;
-      border: 1.5px solid transparent;
-      cursor: pointer;
-      text-align: center;
-      transition: 0.15s;
-    }
+    .dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+    .slot-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; max-height: 250px; overflow-y: auto; padding: 7px; background: #fff; border: 1px solid #cbd5e1; border-radius: 10px; margin-top: 6px; }
+    .slot-btn { padding: 7px 3px; font-size: 11px; font-weight: 600; border-radius: 6px; border: 1.5px solid transparent; cursor: pointer; }
     .slot-avail { background: #dcfce7; color: #166534; border-color: #86efac; }
-    .slot-selected { background: #1d63dc !important; color: #fff !important; border-color: #1e40af !important; transform: scale(1.03); }
-    .slot-unavail { background: #fee2e2; color: #991b1b; border-color: #fca5a5; text-decoration: line-through; opacity: 0.85; }
-    .slot-booked { background: #e0e7ff; color: #3730a3; border-color: #a5b4fc; cursor: not-allowed; opacity: 0.9; }
-    .slot-btn:disabled { cursor: not-allowed; }
+    .slot-selected { background: #1d63dc !important; color: #fff !important; }
+    .slot-unavail { background: #fee2e2; color: #991b1b; border-color: #fca5a5; text-decoration: line-through; }
+    .slot-booked { background: #e0e7ff; color: #3730a3; border-color: #a5b4fc; cursor: not-allowed; }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- AUTH SECTION -->
     <div id="authSection">
       <h1>MediConnect Portal</h1>
       <div class="tabs">
         <button id="tabRegister" class="tab-btn active" onclick="switchMode('register')">Register</button>
         <button id="tabLogin" class="tab-btn" onclick="switchMode('login')">Login</button>
       </div>
-
       <div id="roleDiv">
-        <label for="roleSelect">Account Type Chunein:</label>
+        <label>Account Type:</label>
         <select id="roleSelect" onchange="toggleDoctorFields()">
           <option value="patient">Patient</option>
           <option value="doctor" selected>Doctor</option>
           <option value="admin">Admin</option>
         </select>
       </div>
-
-      <div id="registerNameDiv">
-        <input type="text" id="fullName" placeholder="Poora Naam (e.g., Dr. N. K. Tarun)" />
-      </div>
-
+      <div id="registerNameDiv"><input type="text" id="fullName" placeholder="Poora Naam" /></div>
       <input type="email" id="email" placeholder="Email Address" />
-      <input type="password" id="password" placeholder="Password (kam se kam 6 digit)" />
-
-      <!-- DOCTOR EXTRA FIELDS -->
+      <input type="password" id="password" placeholder="Password (6+ digits)" />
       <div id="doctorFields">
-        <input type="text" id="specialization" placeholder="Specialization / Degree (e.g., Homoeopathic Physician)" />
-        <input type="text" id="clinicName" placeholder="Clinic / Hospital ka Naam" />
-        <input type="text" id="regNumber" placeholder="Medical Registration No." />
-        <input type="number" id="fee" placeholder="Consultation Fee (₹)" />
+        <input type="text" id="specialization" placeholder="Degree / Specialization" />
+        <input type="text" id="clinicName" placeholder="Clinic ka Naam" />
+        <input type="text" id="regNumber" placeholder="Registration No." />
+        <input type="number" id="fee" placeholder="Fee (₹)" />
       </div>
-
       <button id="submitBtn" class="btn-primary" onclick="handleAuth()">Register Karein</button>
       <div id="messageBox" class="error-msg"></div>
     </div>
 
-    <!-- DASHBOARD SECTION -->
     <div id="dashboardSection" class="hidden">
       <div class="header-bar">
         <div>
-          <strong id="welcomeName" style="font-size:17px; color:#0f294a;">Welcome</strong><br />
+          <strong id="welcomeName" style="font-size:16px; color:#0f294a;">Welcome</strong><br />
           <span id="welcomeRole" class="badge">Role</span>
         </div>
         <button class="btn-danger" onclick="logoutUser()">Logout</button>
       </div>
 
-      <!-- PATIENT VIEW -->
+      <!-- PATIENT -->
       <div id="patientDashboard" class="hidden">
-        <h3>Available Verified Doctors</h3>
-        <div id="doctorsList">Loading doctors...</div>
-        <h3 style="margin-top:20px;">Meri Appointments</h3>
-        <div id="patientBookings">Loading bookings...</div>
+        <h3>Verified Doctors</h3>
+        <div id="doctorsList">Loading...</div>
+        <h3 style="margin-top:16px;">Meri Appointments</h3>
+        <div id="patientBookings">Loading...</div>
       </div>
 
-      <!-- DOCTOR VIEW -->
+      <!-- DOCTOR -->
       <div id="doctorDashboard" class="hidden">
-        <div id="doctorPendingAlert" class="alert-box hidden">
-          Aapka Doctor profile abhi <strong>Admin Verification ke liye Pending</strong> hai. Approve hone ke baad patients aapka profile dekh kar appointment book kar payenge.
-        </div>
+        <div id="doctorPendingAlert" class="alert-box hidden">Aapka profile <strong>Admin Verification ke liye Pending</strong> hai.</div>
         <div id="doctorProfileCard" class="card"></div>
-
-        <!-- DOCTOR 24-HOUR SLOT MANAGER -->
         <div class="card">
-          <h3>24-Hour Time Slot Control (15-Min Slots)</h3>
-          <p style="font-size:13px; margin-bottom:8px;">Date chunein aur kisi bhi slot button par tap karke use <strong>Band (Unavailable)</strong> ya <strong>Chalu (Available)</strong> karein:</p>
+          <h3>24-Hour Time Slot Control (15-Min)</h3>
+          <p>Button dabakar slot <strong>Band (Red)</strong> ya <strong>Chalu (Green)</strong> karein:</p>
           <input type="date" id="docManageDate" onchange="renderDoctorSlotGrid()" />
-          <div class="btn-row" style="margin-bottom:8px;">
-            <button class="btn-danger" onclick="bulkToggleSlots(true)">Poora Din Band Karein</button>
-            <button class="btn-success" onclick="bulkToggleSlots(false)">Sabhi Slots Chalu Karein</button>
+          <div class="btn-row">
+            <button class="btn-danger" onclick="bulkToggleSlots(currentDoctorId, 'docManageDate', true)">Poora Din Band</button>
+            <button class="btn-success" onclick="bulkToggleSlots(currentDoctorId, 'docManageDate', false)">Sabhi Chalu</button>
           </div>
           <div class="legend">
-            <span><i class="dot" style="background:#dcfce7; border:1px solid #86efac;"></i> Available</span>
-            <span><i class="dot" style="background:#fee2e2; border:1px solid #fca5a5;"></i> Band (Unavailable)</span>
-            <span><i class="dot" style="background:#e0e7ff; border:1px solid #a5b4fc;"></i> Booked</span>
+            <span><i class="dot" style="background:#dcfce7;"></i> Available</span>
+            <span><i class="dot" style="background:#fee2e2;"></i> Band</span>
+            <span><i class="dot" style="background:#e0e7ff;"></i> Booked</span>
           </div>
-          <div id="doctorSlotGrid" class="slot-grid">Date select karein...</div>
+          <div id="doctorSlotGrid" class="slot-grid"></div>
         </div>
-
         <h3>Patient Appointments</h3>
-        <div id="doctorBookings">Loading appointments...</div>
+        <div id="doctorBookings">Loading...</div>
       </div>
 
-      <!-- ADMIN VIEW -->
+      <!-- ADMIN -->
       <div id="adminDashboard" class="hidden">
-        <h3>Registered Doctors (Approval & Management)</h3>
+        <h3>Registered Doctors (Approval)</h3>
         <div id="adminDoctorsList">Loading...</div>
-        <h3 style="margin-top:20px;">All Appointments</h3>
+
+        <!-- ADMIN LIVE SLOT MONITOR -->
+        <div class="card" style="margin-top:14px;">
+          <h3>Live Slot Monitor & Control (24-Hr)</h3>
+          <p>Doctor aur Date chunein—aap kisi bhi slot ko monitor ya Band/Chalu kar sakte hain:</p>
+          <select id="adminDocSelect" onchange="renderAdminSlotGrid()"></select>
+          <input type="date" id="adminManageDate" onchange="renderAdminSlotGrid()" />
+          <div class="btn-row">
+            <button class="btn-danger" onclick="bulkToggleSlots(document.getElementById('adminDocSelect').value, 'adminManageDate', true)">Poora Din Band</button>
+            <button class="btn-success" onclick="bulkToggleSlots(document.getElementById('adminDocSelect').value, 'adminManageDate', false)">Sabhi Chalu</button>
+          </div>
+          <div class="legend">
+            <span><i class="dot" style="background:#dcfce7;"></i> Available</span>
+            <span><i class="dot" style="background:#fee2e2;"></i> Band</span>
+            <span><i class="dot" style="background:#e0e7ff;"></i> Booked</span>
+          </div>
+          <div id="adminSlotGrid" class="slot-grid"></div>
+        </div>
+
+        <h3 style="margin-top:16px;">All Appointments</h3>
         <div id="adminBookingsList">Loading...</div>
       </div>
     </div>
@@ -161,34 +140,20 @@
 
   <script>
     let authMode = 'register';
-    function switchMode(newMode) {
-      authMode = newMode;
+    function switchMode(m) {
+      authMode = m;
       document.getElementById('messageBox').innerText = '';
-      if (authMode === 'register') {
-        document.getElementById('tabRegister').classList.add('active');
-        document.getElementById('tabLogin').classList.remove('active');
-        document.getElementById('roleDiv').classList.remove('hidden');
-        document.getElementById('registerNameDiv').classList.remove('hidden');
-        document.getElementById('submitBtn').innerText = 'Register Karein';
-        toggleDoctorFields();
-      } else {
-        document.getElementById('tabLogin').classList.add('active');
-        document.getElementById('tabRegister').classList.remove('active');
-        document.getElementById('roleDiv').classList.add('hidden');
-        document.getElementById('registerNameDiv').classList.add('hidden');
-        document.getElementById('doctorFields').classList.add('hidden');
-        document.getElementById('submitBtn').innerText = 'Login Karein';
-      }
+      const isReg = m === 'register';
+      document.getElementById('tabRegister').classList.toggle('active', isReg);
+      document.getElementById('tabLogin').classList.toggle('active', !isReg);
+      document.getElementById('roleDiv').classList.toggle('hidden', !isReg);
+      document.getElementById('registerNameDiv').classList.toggle('hidden', !isReg);
+      document.getElementById('submitBtn').innerText = isReg ? 'Register Karein' : 'Login Karein';
+      toggleDoctorFields();
     }
-
     function toggleDoctorFields() {
-      const role = document.getElementById('roleSelect').value;
-      const docFields = document.getElementById('doctorFields');
-      if (authMode === 'register' && role === 'doctor') {
-        docFields.classList.remove('hidden');
-      } else {
-        docFields.classList.add('hidden');
-      }
+      const show = authMode === 'register' && document.getElementById('roleSelect').value === 'doctor';
+      document.getElementById('doctorFields').classList.toggle('hidden', !show);
     }
   </script>
 
@@ -210,412 +175,225 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+    window.currentDoctorId = null;
+    let selectedSlots = {};
 
-    let currentDoctorId = null;
-    let selectedPatientSlots = {}; // { doctorId: "10:15 AM" }
-
-    // 24 Ghante ke 96 slots (har 15 minute par) generate karne ka function
-    function generate96Slots() {
-      const slots = [];
-      for (let h = 0; h < 24; h++) {
-        for (let m = 0; m < 60; m += 15) {
-          const ampm = h >= 12 ? 'PM' : 'AM';
-          const hr12 = h % 12 === 0 ? 12 : h % 12;
-          const minStr = m === 0 ? '00' : String(m);
-          slots.push(`${hr12}:${minStr} ${ampm}`);
-        }
+    const ALL_SLOTS = [];
+    for (let h = 0; h < 24; h++) {
+      for (let m = 0; m < 60; m += 15) {
+        const ap = h >= 12 ? 'PM' : 'AM';
+        const hr = h % 12 === 0 ? 12 : h % 12;
+        ALL_SLOTS.push(`${hr}:${m === 0 ? '00' : m} ${ap}`);
       }
-      return slots;
     }
-    const ALL_96_SLOTS = generate96Slots();
-
-    function getTodayDateStr() {
-      const d = new Date();
-      return d.toISOString().split('T')[0];
-    }
+    const todayStr = () => new Date().toISOString().split('T')[0];
 
     window.handleAuth = async function() {
       const msg = document.getElementById('messageBox');
-      msg.className = 'error-msg';
       msg.innerText = 'Please wait...';
-
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value.trim();
-
-      if (!email || !password) {
-        msg.innerText = 'Email aur Password zaroori hai.';
-        return;
-      }
-
+      if (!email || !password) return (msg.innerText = 'Email aur Password bharein.');
       try {
         if (authMode === 'register') {
           const name = document.getElementById('fullName').value.trim();
           const role = document.getElementById('roleSelect').value;
-          if (!name) {
-            msg.innerText = 'Kripya apna poora naam likhein.';
-            return;
-          }
-
-          let userData = { name, email, role, createdAt: new Date().toISOString() };
-
+          if (!name) return (msg.innerText = 'Poora naam likhein.');
+          let userData = { name, email, role };
           if (role === 'doctor') {
             const specialization = document.getElementById('specialization').value.trim();
             const clinicName = document.getElementById('clinicName').value.trim();
             const regNumber = document.getElementById('regNumber').value.trim();
             const fee = document.getElementById('fee').value.trim();
-
-            if (!specialization || !clinicName || !regNumber || !fee) {
-              msg.innerText = 'Doctor ki saari jaankari (Degree, Clinic, Reg No, Fee) bharein.';
-              return;
-            }
+            if (!specialization || !clinicName || !regNumber || !fee) return (msg.innerText = 'Doctor ki saari detail bharein.');
             userData = { ...userData, specialization, clinicName, regNumber, fee, approved: false, unavailableSlots: {} };
           }
-
           const cred = await createUserWithEmailAndPassword(auth, email, password);
           await setDoc(doc(db, 'users', cred.user.uid), userData);
-          msg.className = 'success-msg';
-          msg.innerText = 'Registration Successful!';
         } else {
           await signInWithEmailAndPassword(auth, email, password);
-          msg.innerText = '';
         }
-      } catch (err) {
-        msg.innerText = err.message;
-      }
+        msg.innerText = '';
+      } catch (e) { msg.innerText = e.message; }
     };
 
     onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        try {
-          const snap = await getDoc(doc(db, 'users', user.uid));
-          if (snap.exists()) {
-            const data = snap.data();
-            document.getElementById('authSection').classList.add('hidden');
-            document.getElementById('dashboardSection').classList.remove('hidden');
-            document.getElementById('welcomeName').innerText = data.name;
-            document.getElementById('welcomeRole').innerText = data.role.toUpperCase();
-            loadDashboard(user.uid, data);
-          } else {
-            await signOut(auth);
-            document.getElementById('authSection').classList.remove('hidden');
-            document.getElementById('dashboardSection').classList.add('hidden');
-          }
-        } catch (e) {
-          console.error(e);
-          await signOut(auth);
-        }
-      } else {
+      if (!user) {
         document.getElementById('authSection').classList.remove('hidden');
         document.getElementById('dashboardSection').classList.add('hidden');
+        return;
+      }
+      const snap = await getDoc(doc(db, 'users', user.uid));
+      if (!snap.exists()) { await signOut(auth); return; }
+      const d = snap.data();
+      document.getElementById('authSection').classList.add('hidden');
+      document.getElementById('dashboardSection').classList.remove('hidden');
+      document.getElementById('welcomeName').innerText = d.name;
+      document.getElementById('welcomeRole').innerText = d.role.toUpperCase();
+
+      ['patientDashboard', 'doctorDashboard', 'adminDashboard'].forEach(id => document.getElementById(id).classList.add('hidden'));
+      if (d.role === 'patient') {
+        document.getElementById('patientDashboard').classList.remove('hidden');
+        loadDoctors(user.uid, d.name);
+        loadBookings('patientId', user.uid, 'patientBookings', false);
+      } else if (d.role === 'doctor') {
+        window.currentDoctorId = user.uid;
+        document.getElementById('doctorDashboard').classList.remove('hidden');
+        document.getElementById('doctorPendingAlert').classList.toggle('hidden', !!d.approved);
+        document.getElementById('doctorProfileCard').innerHTML = `<h3>${d.name} <span class="badge ${d.approved ? 'badge-approved' : 'badge-pending'}">${d.approved ? 'Verified' : 'Pending'}</span></h3><p>${d.specialization} • ${d.clinicName} • Fee: ₹${d.fee}</p>`;
+        const dt = document.getElementById('docManageDate');
+        if (!dt.value) dt.value = todayStr();
+        renderDoctorSlotGrid();
+        loadBookings('doctorId', user.uid, 'doctorBookings', true);
+      } else if (d.role === 'admin') {
+        document.getElementById('adminDashboard').classList.remove('hidden');
+        const adt = document.getElementById('adminManageDate');
+        if (!adt.value) adt.value = todayStr();
+        loadAdminData();
       }
     });
 
-    async function loadDashboard(uid, data) {
-      document.getElementById('patientDashboard').classList.add('hidden');
-      document.getElementById('doctorDashboard').classList.add('hidden');
-      document.getElementById('adminDashboard').classList.add('hidden');
-
-      if (data.role === 'patient') {
-        document.getElementById('patientDashboard').classList.remove('hidden');
-        loadDoctorsForPatient(uid, data.name);
-        loadPatientBookings(uid);
-      } else if (data.role === 'doctor') {
-        currentDoctorId = uid;
-        document.getElementById('doctorDashboard').classList.remove('hidden');
-        const pendingAlert = document.getElementById('doctorPendingAlert');
-        if (!data.approved) {
-          pendingAlert.classList.remove('hidden');
-        } else {
-          pendingAlert.classList.add('hidden');
-        }
-        const statusBadge = data.approved
-          ? '<span class="badge badge-approved">Verified & Active</span>'
-          : '<span class="badge badge-pending">Pending Admin Approval</span>';
-
-        document.getElementById('doctorProfileCard').innerHTML = `
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h3>${data.name}</h3>
-            ${statusBadge}
-          </div>
-          <p><strong>Degree:</strong> ${data.specialization}</p>
-          <p><strong>Clinic:</strong> ${data.clinicName}</p>
-          <p><strong>Reg No:</strong> ${data.regNumber} | <strong>Fee:</strong> ₹${data.fee}</p>
-        `;
-
-        const dateInput = document.getElementById('docManageDate');
-        if (!dateInput.value) dateInput.value = getTodayDateStr();
-        renderDoctorSlotGrid();
-        loadDoctorBookings(uid);
-      } else if (data.role === 'admin') {
-        document.getElementById('adminDashboard').classList.remove('hidden');
-        loadAdminData();
-      }
-    }
-
-    // --- DOCTOR SLOT MANAGEMENT FUNCTIONS ---
-    window.renderDoctorSlotGrid = async function() {
-      const dateStr = document.getElementById('docManageDate').value;
-      const grid = document.getElementById('doctorSlotGrid');
-      if (!dateStr || !currentDoctorId) return;
-
-      grid.innerHTML = 'Slots load ho rahe hain...';
-
-      // Doctor ke unavailable slots aur booked appointments fetch karein
-      const docSnap = await getDoc(doc(db, 'users', currentDoctorId));
-      const unavailMap = (docSnap.data().unavailableSlots || {})[dateStr] || [];
-
-      const qBk = query(collection(db, 'appointments'), where('doctorId', '==', currentDoctorId), where('date', '==', dateStr));
-      const bkSnap = await getDocs(qBk);
-      const bookedSlots = [];
-      bkSnap.forEach(b => { if (b.data().timeSlot) bookedSlots.push(b.data().timeSlot); });
+    async function buildSlotControlGrid(docId, dateStr, gridElId, refreshFn) {
+      const grid = document.getElementById(gridElId);
+      if (!docId || !dateStr) return;
+      grid.innerHTML = 'Loading...';
+      const uSnap = await getDoc(doc(db, 'users', docId));
+      const unavail = (uSnap.data().unavailableSlots || {})[dateStr] || [];
+      const bkSnap = await getDocs(query(collection(db, 'appointments'), where('doctorId', '==', docId), where('date', '==', dateStr)));
+      const booked = [];
+      bkSnap.forEach(b => { if (b.data().timeSlot) booked.push(b.data().timeSlot); });
 
       grid.innerHTML = '';
-      ALL_96_SLOTS.forEach(slot => {
+      ALL_SLOTS.forEach(slot => {
         const btn = document.createElement('button');
         btn.innerText = slot;
         btn.className = 'slot-btn';
-
-        if (bookedSlots.includes(slot)) {
-          btn.classList.add('slot-booked');
-          btn.disabled = true;
-          btn.title = 'Patient dwara Booked';
-        } else if (unavailMap.includes(slot)) {
-          btn.classList.add('slot-unavail');
-          btn.onclick = () => toggleSingleDoctorSlot(dateStr, slot, false);
-        } else {
-          btn.classList.add('slot-avail');
-          btn.onclick = () => toggleSingleDoctorSlot(dateStr, slot, true);
-        }
+        if (booked.includes(slot)) { btn.classList.add('slot-booked'); btn.disabled = true; }
+        else if (unavail.includes(slot)) { btn.classList.add('slot-unavail'); btn.onclick = () => toggleSlot(docId, dateStr, slot, false, refreshFn); }
+        else { btn.classList.add('slot-avail'); btn.onclick = () => toggleSlot(docId, dateStr, slot, true, refreshFn); }
         grid.appendChild(btn);
       });
-    };
-
-    async function toggleSingleDoctorSlot(dateStr, slot, makeUnavailable) {
-      const userRef = doc(db, 'users', currentDoctorId);
-      const snap = await getDoc(userRef);
-      const allUnavail = snap.data().unavailableSlots || {};
-      let dayList = allUnavail[dateStr] || [];
-
-      if (makeUnavailable) {
-        if (!dayList.includes(slot)) dayList.push(slot);
-      } else {
-        dayList = dayList.filter(s => s !== slot);
-      }
-      allUnavail[dateStr] = dayList;
-      await updateDoc(userRef, { unavailableSlots: allUnavail });
-      renderDoctorSlotGrid();
     }
 
-    window.bulkToggleSlots = async function(closeAll) {
-      const dateStr = document.getElementById('docManageDate').value;
-      if (!dateStr || !currentDoctorId) return;
-      const userRef = doc(db, 'users', currentDoctorId);
-      const snap = await getDoc(userRef);
-      const allUnavail = snap.data().unavailableSlots || {};
-      allUnavail[dateStr] = closeAll ? [...ALL_96_SLOTS] : [];
-      await updateDoc(userRef, { unavailableSlots: allUnavail });
-      renderDoctorSlotGrid();
+    async function toggleSlot(docId, dateStr, slot, close, refreshFn) {
+      const ref = doc(db, 'users', docId);
+      const snap = await getDoc(ref);
+      const map = snap.data().unavailableSlots || {};
+      let list = map[dateStr] || [];
+      list = close ? [...new Set([...list, slot])] : list.filter(s => s !== slot);
+      map[dateStr] = list;
+      await updateDoc(ref, { unavailableSlots: map });
+      refreshFn();
+    }
+
+    window.bulkToggleSlots = async function(docId, dateInputId, closeAll) {
+      const dateStr = document.getElementById(dateInputId).value;
+      if (!docId || !dateStr) return;
+      const ref = doc(db, 'users', docId);
+      const snap = await getDoc(ref);
+      const map = snap.data().unavailableSlots || {};
+      map[dateStr] = closeAll ? [...ALL_SLOTS] : [];
+      await updateDoc(ref, { unavailableSlots: map });
+      if (dateInputId === 'adminManageDate') renderAdminSlotGrid();
+      else renderDoctorSlotGrid();
     };
 
-    // --- PATIENT DOCTORS & SLOT BOOKING FUNCTIONS ---
-    async function loadDoctorsForPatient(patientId, patientName) {
-      const container = document.getElementById('doctorsList');
-      const q = query(collection(db, 'users'), where('role', '==', 'doctor'), where('approved', '==', true));
-      const snap = await getDocs(q);
-      container.innerHTML = '';
-      if (snap.empty) {
-        container.innerHTML = '<p>Abhi koi verified doctor available nahi hai.</p>';
-        return;
-      }
+    window.renderDoctorSlotGrid = () => buildSlotControlGrid(window.currentDoctorId, document.getElementById('docManageDate').value, 'doctorSlotGrid', renderDoctorSlotGrid);
+    window.renderAdminSlotGrid = () => buildSlotControlGrid(document.getElementById('adminDocSelect').value, document.getElementById('adminManageDate').value, 'adminSlotGrid', renderAdminSlotGrid);
 
-            const todayStr = getTodayDateStr();
-      snap.forEach((docSnap) => {
-        const d = docSnap.data();
-        const docId = docSnap.id;
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-          <h3>${d.name} <span class="badge badge-approved">Verified</span></h3>
-          <p>${d.specialization} • ${d.clinicName}</p>
-          <p>Fee: <strong>₹${d.fee}</strong></p>
-          <label style="margin-top:8px;">1. Date Chunein:</label>
-          <input type="date" id="date_${docId}" value="${todayStr}" min="${todayStr}" onchange="loadPatientSlotsForDoctor('${docId}')" />
-          <label>2. Time Slot Chunein (Green = Available):</label>
-          <div class="legend">
-            <span><i class="dot" style="background:#dcfce7; border:1px solid #86efac;"></i> Available</span>
-            <span><i class="dot" style="background:#1d63dc;"></i> Selected</span>
-            <span><i class="dot" style="background:#e0e7ff; border:1px solid #a5b4fc;"></i> Booked</span>
-            <span><i class="dot" style="background:#fee2e2; border:1px solid #fca5a5;"></i> Unavailable</span>
-          </div>
-          <div id="patGrid_${docId}" class="slot-grid">Loading slots...</div>
-          <button class="btn-primary" style="margin-top:10px;" onclick="bookAppointment('${docId}', '${d.name}', '${patientId}', '${patientName}')">Book Selected Slot</button>
-        `;
-        container.appendChild(card);
-        loadPatientSlotsForDoctor(docId);
+    async function loadDoctors(pid, pname) {
+      const box = document.getElementById('doctorsList');
+      const snap = await getDocs(query(collection(db, 'users'), where('role', '==', 'doctor'), where('approved', '==', true)));
+      box.innerHTML = snap.empty ? '<p>Koi verified doctor available nahi hai.</p>' : '';
+      snap.forEach(d => {
+        const info = d.data();
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `<h3>${info.name} <span class="badge badge-approved">Verified</span></h3><p>${info.specialization} • ${info.clinicName} • Fee: ₹${info.fee}</p><input type="date" id="date_${d.id}" value="${todayStr()}" min="${todayStr()}" onchange="loadPatSlots('${d.id}')" /><div class="legend"><span><i class="dot" style="background:#dcfce7;"></i> Available</span><span><i class="dot" style="background:#1d63dc;"></i> Selected</span><span><i class="dot" style="background:#e0e7ff;"></i> Booked</span><span><i class="dot" style="background:#fee2e2;"></i> Band</span></div><div id="grid_${d.id}" class="slot-grid"></div><button class="btn-primary" onclick="bookSlot('${d.id}','${info.name}','${pid}','${pname}')">Book Selected Slot</button>`;
+        box.appendChild(div);
+        loadPatSlots(d.id);
       });
     }
 
-    window.loadPatientSlotsForDoctor = async function(doctorId) {
-      const dateStr = document.getElementById(`date_${doctorId}`).value;
-      const grid = document.getElementById(`patGrid_${doctorId}`);
-      selectedPatientSlots[doctorId] = null;
-      if (!dateStr) return;
-
-      grid.innerHTML = 'Slots load ho rahe hain...';
-
-      const docSnap = await getDoc(doc(db, 'users', doctorId));
-      const unavailMap = (docSnap.data().unavailableSlots || {})[dateStr] || [];
-
-      const qBk = query(collection(db, 'appointments'), where('doctorId', '==', doctorId), where('date', '==', dateStr));
-      const bkSnap = await getDocs(qBk);
-      const bookedSlots = [];
-      bkSnap.forEach(b => { if (b.data().timeSlot) bookedSlots.push(b.data().timeSlot); });
+    window.loadPatSlots = async function(docId) {
+      const dateStr = document.getElementById(`date_${docId}`).value;
+      const grid = document.getElementById(`grid_${docId}`);
+      selectedSlots[docId] = null;
+      grid.innerHTML = 'Loading...';
+      const uSnap = await getDoc(doc(db, 'users', docId));
+      const unavail = (uSnap.data().unavailableSlots || {})[dateStr] || [];
+      const bkSnap = await getDocs(query(collection(db, 'appointments'), where('doctorId', '==', docId), where('date', '==', dateStr)));
+      const booked = [];
+      bkSnap.forEach(b => { if (b.data().timeSlot) booked.push(b.data().timeSlot); });
 
       grid.innerHTML = '';
-      ALL_96_SLOTS.forEach(slot => {
+      ALL_SLOTS.forEach(slot => {
         const btn = document.createElement('button');
         btn.innerText = slot;
         btn.className = 'slot-btn';
-
-        if (bookedSlots.includes(slot)) {
-          btn.classList.add('slot-booked');
-          btn.disabled = true;
-          btn.title = 'Already Booked';
-        } else if (unavailMap.includes(slot)) {
-          btn.classList.add('slot-unavail');
-          btn.disabled = true;
-          btn.title = 'Doctor Not Available';
-        } else {
+        if (booked.includes(slot)) { btn.classList.add('slot-booked'); btn.disabled = true; }
+        else if (unavail.includes(slot)) { btn.classList.add('slot-unavail'); btn.disabled = true; }
+        else {
           btn.classList.add('slot-avail');
           btn.onclick = () => {
             grid.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('slot-selected'));
             btn.classList.add('slot-selected');
-            selectedPatientSlots[doctorId] = slot;
+            selectedSlots[docId] = slot;
           };
         }
         grid.appendChild(btn);
       });
     };
 
-    window.bookAppointment = async function(doctorId, doctorName, patientId, patientName) {
-      const dateVal = document.getElementById(`date_${doctorId}`).value;
-      const timeSlotVal = selectedPatientSlots[doctorId];
-
-      if (!dateVal) {
-        alert('Kripya appointment ki date chunein.');
-        return;
-      }
-      if (!timeSlotVal) {
-        alert('Kripya kisi Available (Green) time slot button par tap karke time chunein.');
-        return;
-      }
-
-      const qCheck = query(
-        collection(db, 'appointments'),
-        where('doctorId', '==', doctorId),
-        where('date', '==', dateVal),
-        where('timeSlot', '==', timeSlotVal)
-      );
-      const checkSnap = await getDocs(qCheck);
-      if (!checkSnap.empty) {
-        alert('Sorry! Yeh slot abhi-abhi kisi aur patient ne book kar liya hai. Kripya doosra slot chunein.');
-        loadPatientSlotsForDoctor(doctorId);
-        return;
-      }
-
-      await addDoc(collection(db, 'appointments'), {
-        doctorId,
-        doctorName,
-        patientId,
-        patientName,
-        date: dateVal,
-        timeSlot: timeSlotVal,
-        status: 'Booked'
-      });
-      alert(`Appointment Booked! (${dateVal} at ${timeSlotVal})`);
-      loadPatientSlotsForDoctor(doctorId);
-      loadPatientBookings(patientId);
+    window.bookSlot = async function(docId, docName, pid, pname) {
+      const date = document.getElementById(`date_${docId}`).value;
+      const timeSlot = selectedSlots[docId];
+            if (!date || !timeSlot) return alert('Date aur Green Time Slot chunein.');
+      const chk = await getDocs(query(collection(db, 'appointments'), where('doctorId', '==', docId), where('date', '==', date), where('timeSlot', '==', timeSlot)));
+      if (!chk.empty) { alert('Yeh slot abhi book ho chuka hai!'); return loadPatSlots(docId); }
+      await addDoc(collection(db, 'appointments'), { doctorId: docId, doctorName: docName, patientId: pid, patientName: pname, date, timeSlot, status: 'Booked' });
+      alert(`Booked: ${date} at ${timeSlot}`);
+      loadPatSlots(docId);
+      loadBookings('patientId', pid, 'patientBookings', false);
     };
 
-    async function loadPatientBookings(patientId) {
-      const container = document.getElementById('patientBookings');
-      const q = query(collection(db, 'appointments'), where('patientId', '==', patientId));
-      const snap = await getDocs(q);
-      container.innerHTML = snap.empty ? '<p>Koi booking nahi mili.</p>' : '';
-      snap.forEach((b) => {
+    async function loadBookings(field, val, elId, isDoc) {
+      const box = document.getElementById(elId);
+      const snap = await getDocs(query(collection(db, 'appointments'), where(field, '==', val)));
+      box.innerHTML = snap.empty ? '<p>Koi appointment nahi hai.</p>' : '';
+      snap.forEach(b => {
         const bk = b.data();
-        const timeText = bk.timeSlot ? ` • Time: <strong>${bk.timeSlot}</strong>` : '';
-        container.innerHTML += `<div class="card"><strong>${bk.doctorName}</strong><p>Date: ${bk.date}${timeText} • Status: ${bk.status}</p></div>`;
+        box.innerHTML += `<div class="card"><strong>${isDoc ? 'Patient: ' + bk.patientName : bk.doctorName}</strong><p>Date: ${bk.date} ${bk.timeSlot ? '• Time: <b>' + bk.timeSlot + '</b>' : ''} • ${bk.status}</p></div>`;
       });
     }
 
-    async function loadDoctorBookings(doctorId) {
-      const container = document.getElementById('doctorBookings');
-      const q = query(collection(db, 'appointments'), where('doctorId', '==', doctorId));
-      const snap = await getDocs(q);
-      container.innerHTML = snap.empty ? '<p>Abhi koi patient appointment nahi hai.</p>' : '';
-      snap.forEach((b) => {
-        const bk = b.data();
-        const timeText = bk.timeSlot ? ` • Time: <strong>${bk.timeSlot}</strong>` : '';
-        container.innerHTML += `<div class="card"><strong>Patient: ${bk.patientName}</strong><p>Date: ${bk.date}${timeText} • Status: ${bk.status}</p></div>`;
-      });
-    }
-
-    window.toggleDoctorApproval = async function(docId, currentStatus) {
-      await updateDoc(doc(db, 'users', docId), { approved: !currentStatus });
-      loadAdminData();
-    };
-
-    window.deleteDoctorRecord = async function(docId, docName) {
-      if (confirm(`Kya aap ${docName} ko list se hatana (delete karna) chahte hain?`)) {
-        await deleteDoc(doc(db, 'users', docId));
-        loadAdminData();
-      }
-    };
+    window.toggleApprove = async function(id, st) { await updateDoc(doc(db, 'users', id), { approved: !st }); loadAdminData(); };
+    window.delDoc = async function(id, name) { if (confirm(`${name} ko delete karein?`)) { await deleteDoc(doc(db, 'users', id)); loadAdminData(); } };
 
     async function loadAdminData() {
-      const docContainer = document.getElementById('adminDoctorsList');
-      const qDocs = query(collection(db, 'users'), where('role', '==', 'doctor'));
-      const docSnap = await getDocs(qDocs);
-      docContainer.innerHTML = docSnap.empty ? '<p>Koi doctor registered nahi hai.</p>' : '';
-      docSnap.forEach((d) => {
-        const info = d.data();
-        const isApproved = info.approved === true;
-        const statusBadge = isApproved
-          ? '<span class="badge badge-approved">Approved</span>'
-          : '<span class="badge badge-pending">Pending</span>';
-        const toggleBtn = isApproved
-          ? `<button class="btn-warning" onclick="toggleDoctorApproval('${d.id}', true)">Unapprove (Hide)</button>`
-          : `<button class="btn-success" onclick="toggleDoctorApproval('${d.id}', false)">Approve Doctor</button>`;
-
-        docContainer.innerHTML += `
-          <div class="card">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <strong>${info.name} (${info.specialization})</strong>
-              ${statusBadge}
-            </div>
-            <p>${info.clinicName} • Reg: ${info.regNumber || 'N/A'} • Fee: ₹${info.fee}</p>
-            <div class="btn-row">
-              ${toggleBtn}
-              <button class="btn-danger" onclick="deleteDoctorRecord('${d.id}', '${info.name}')">Delete</button>
-            </div>
-          </div>`;
+      const dBox = document.getElementById('adminDoctorsList');
+      const dSel = document.getElementById('adminDocSelect');
+      const dSnap = await getDocs(query(collection(db, 'users'), where('role', '==', 'doctor')));
+      dBox.innerHTML = dSnap.empty ? '<p>Koi doctor nahi hai.</p>' : '';
+      dSel.innerHTML = '';
+      dSnap.forEach(d => {
+        const i = d.data();
+        const ok = i.approved === true;
+        dBox.innerHTML += `<div class="card"><strong>${i.name} (${i.specialization})</strong> <span class="badge ${ok ? 'badge-approved' : 'badge-pending'}">${ok ? 'Approved' : 'Pending'}</span><p>${i.clinicName} • Fee: ₹${i.fee}</p><div class="btn-row"><button class="${ok ? 'btn-warning' : 'btn-success'}" onclick="toggleApprove('${d.id}',${ok})">${ok ? 'Unapprove' : 'Approve'}</button><button class="btn-danger" onclick="delDoc('${d.id}','${i.name}')">Delete</button></div></div>`;
+        dSel.innerHTML += `<option value="${d.id}">${i.name} (${i.clinicName})</option>`;
       });
+      if (!dSnap.empty) renderAdminSlotGrid();
 
-      const bkContainer = document.getElementById('adminBookingsList');
-      const bkSnap = await getDocs(collection(db, 'appointments'));
-      bkContainer.innerHTML = bkSnap.empty ? '<p>Koi appointment nahi hai.</p>' : '';
-      bkSnap.forEach((b) => {
+      const bBox = document.getElementById('adminBookingsList');
+      const bSnap = await getDocs(collection(db, 'appointments'));
+      bBox.innerHTML = bSnap.empty ? '<p>Koi appointment nahi hai.</p>' : '';
+      bSnap.forEach(b => {
         const bk = b.data();
-        const timeText = bk.timeSlot ? ` (${bk.timeSlot})` : '';
-        bkContainer.innerHTML += `<div class="card"><strong>${bk.patientName}</strong> → ${bk.doctorName}<p>Date: ${bk.date}${timeText} • ${bk.status}</p></div>`;
+        bBox.innerHTML += `<div class="card"><strong>${bk.patientName}</strong> → ${bk.doctorName}<p>Date: ${bk.date} ${bk.timeSlot ? '(' + bk.timeSlot + ')' : ''} • ${bk.status}</p></div>`;
       });
     }
 
-    window.logoutUser = async function() {
-      await signOut(auth);
-      location.reload();
-    };
+    window.logoutUser = async () => { await signOut(auth); location.reload(); };
   </script>
 </body>
 </html>
