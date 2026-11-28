@@ -14,6 +14,9 @@
     .tab-btn.active { background: #1d63dc; color: #fff; }
     label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 13px; }
     select, input { width: 100%; padding: 10px 12px; margin-bottom: 10px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 14px; background: #f8fafc; }
+    .search-bar { display: flex; gap: 8px; margin-bottom: 10px; }
+    .search-bar input { flex: 2; margin-bottom: 0; border-color: #93c5fd; background: #fff; }
+    .search-bar select { flex: 1; margin-bottom: 0; border-color: #93c5fd; background: #fff; }
     .btn-primary { width: 100%; padding: 12px; border: none; border-radius: 10px; background: #1d63dc; color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 4px; }
     .btn-wa { display: inline-block; text-decoration: none; background: #25d366; color: #fff; padding: 7px 11px; border-radius: 8px; font-weight: 600; font-size: 12px; border: none; cursor: pointer; }
     .btn-danger { background: #dc2626; color: #fff; border: none; padding: 7px 11px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 12px; }
@@ -83,6 +86,12 @@
       <div id="patientDashboard" class="hidden">
         <div id="bookingWaAlert" class="wa-banner hidden"></div>
         <h3>Verified Doctors</h3>
+        <div class="search-bar">
+          <input type="text" id="docSearchInput" placeholder="Doctor ya Clinic khojein..." oninput="filterDoctors()" />
+          <select id="docSpecFilter" onchange="filterDoctors()">
+            <option value="">All Degrees</option>
+          </select>
+        </div>
         <div id="doctorsList">Loading...</div>
         <h3 style="margin-top:16px;">Meri Appointments</h3>
         <div id="patientBookings">Loading...</div>
@@ -162,6 +171,7 @@
     window.currentDoctorId = null;
     let currentUserData = null;
     let selectedSlots = {};
+    let verifiedDoctorsCache = [];
 
     const ALL_SLOTS = [];
     for (let h = 0; h < 24; h++) {
@@ -295,18 +305,43 @@
     window.renderAdminSlotGrid = () => buildSlotControlGrid(document.getElementById('adminDocSelect').value, document.getElementById('adminManageDate').value, 'adminSlotGrid', renderAdminSlotGrid);
 
     async function loadDoctors() {
-      const box = document.getElementById('doctorsList');
       const snap = await getDocs(query(collection(db, 'users'), where('role', '==', 'doctor'), where('approved', '==', true)));
-      box.innerHTML = snap.empty ? '<p>Koi verified doctor available nahi hai.</p>' : '';
+      verifiedDoctorsCache = [];
+      const specs = new Set();
       snap.forEach(d => {
         const info = d.data();
+        verifiedDoctorsCache.push({ id: d.id, ...info });
+        if (info.specialization) specs.add(info.specialization.trim());
+      });
+      const sel = document.getElementById('docSpecFilter');
+      sel.innerHTML = '<option value="">All Degrees</option>';
+      specs.forEach(sp => { sel.innerHTML += `<option value="${sp.toLowerCase()}">${sp}</option>`; });
+      filterDoctors();
+    }
+
+    window.filterDoctors = function() {
+      const box = document.getElementById('doctorsList');
+      const term = (document.getElementById('docSearchInput').value || '').toLowerCase().trim();
+      const specVal = (document.getElementById('docSpecFilter').value || '').toLowerCase().trim();
+
+      const filtered = verifiedDoctorsCache.filter(info => {
+        const matchText = !term ||
+          (info.name || '').toLowerCase().includes(term) ||
+          (info.clinicName || '').toLowerCase().includes(term) ||
+          (info.specialization || '').toLowerCase().includes(term);
+        const matchSpec = !specVal || (info.specialization || '').toLowerCase().trim() === specVal;
+        return matchText && matchSpec;
+      });
+
+      box.innerHTML = filtered.length === 0 ? '<p>Koi matching doctor nahi mila.</p>' : '';
+      filtered.forEach(info => {
         const div = document.createElement('div');
         div.className = 'card';
-        div.innerHTML = `<h3>${info.name} <span class="badge badge-approved">Verified</span></h3><p>${info.specialization} • ${info.clinicName} • Fee: ₹${info.fee}</p><input type="date" id="date_${d.id}" value="${todayStr()}" min="${todayStr()}" onchange="loadPatSlots('${d.id}')" /><div id="grid_${d.id}" class="slot-grid"></div><button class="btn-primary" onclick="bookSlot('${d.id}','${info.name}','${info.phone || ''}')">Book Selected Slot</button>`;
+        div.innerHTML = `<h3>${info.name} <span class="badge badge-approved">Verified</span></h3><p>${info.specialization} • ${info.clinicName} • Fee: ₹${info.fee}</p><input type="date" id="date_${info.id}" value="${todayStr()}" min="${todayStr()}" onchange="loadPatSlots('${info.id}')" /><div id="grid_${info.id}" class="slot-grid"></div><button class="btn-primary" onclick="bookSlot('${info.id}','${info.name}','${info.phone || ''}')">Book Selected Slot</button>`;
         box.appendChild(div);
-        loadPatSlots(d.id);
+        loadPatSlots(info.id);
       });
-    }
+    };
 
     window.loadPatSlots = async function(docId) {
       const dateStr = document.getElementById(`date_${docId}`).value;
